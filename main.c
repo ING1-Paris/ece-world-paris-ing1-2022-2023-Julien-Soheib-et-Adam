@@ -22,14 +22,15 @@ int init_allegro(void){
     
     install_mouse();
     install_keyboard();
-    set_gfx_mode(GFX_AUTODETECT_WINDOWED,1000,1000,0,0);
-
-    /*
-    if(set_gfx_mode(GFX_AUTODETECT_WINDOWED,1000,1000,0,0)){
+    
+    
+    if(set_gfx_mode(GFX_AUTODETECT_WINDOWED,800,600,0,0)!=0){
         allegro_message("Error while loading screen");
         allegro_exit();
         return 1;
-    }*/
+    }
+    
+   show_mouse(screen);
     
     
     
@@ -38,16 +39,36 @@ int init_allegro(void){
 
 
 int init_fond(void){
+    BITMAP *loading_bmp;
     BITMAP *fond;
-    fond = load_bitmap("map.bmp",NULL);
+    loading_bmp = load_bitmap("map.bmp",NULL);
+    int x = 0;
+    int y = 0;
 
-    if(fond == NULL){
+    if(loading_bmp == NULL){
         allegro_message("Error while loading the map.");
         allegro_exit();
         return 1;
     }
 
-    blit(fond,screen,0,0,0,0,fond->w,fond->h);
+    fond = create_bitmap((loading_bmp->x)*2.5,(loading_bmp->y)*2.5);
+    stretch_blit(loading_bmp, fond, 0, 0, loading_bmp->w, loading_bmp->h, 0, 0, fond->w, fond->h);
+    destroy_bitmap(loading_bmp);
+
+
+    blit(fond,screen,x,y,0,0,fond->w,fond->h);
+
+    while(!key[KEY_ESC]){
+        if(key[KEY_RIGHT] && x<=fond->w-SCREEN_W)
+            x++;
+        if(key[KEY_LEFT] && x>=0)
+            x--;
+        if(key[KEY_UP] && y>=0 )
+            y--;
+        if(key[KEY_DOWN] && y<= fond->h - SCREEN_H)
+            y++;
+        blit(fond,screen,x,y,0,0,fond->w,fond->h);
+    }
 
     readkey();
     return 0;
