@@ -41,9 +41,17 @@ int init_allegro(void){
 int init_fond(void){
     BITMAP *loading_bmp;
     BITMAP *fond;
+    BITMAP *perso[9];
+    BITMAP * buffer;
     loading_bmp = load_bitmap("map.bmp",NULL);
     int x = 0;
     int y = 0;
+    int count = 0;
+    buffer = load_bitmap("perso_test.bmp",NULL);
+
+    for(int i = 0; i<9;i++){
+        perso[i] = create_sub_bitmap(buffer,i*16,(i%3)*16,16,16);
+    }
 
     if(loading_bmp == NULL){
         allegro_message("Error while loading the map.");
@@ -51,22 +59,44 @@ int init_fond(void){
         return 1;
     }
 
-    fond = create_bitmap((loading_bmp->x)*2.5,(loading_bmp->y)*2.5);
+    fond = create_bitmap((loading_bmp->w)*2.5,(loading_bmp->h)*2.5);
     stretch_blit(loading_bmp, fond, 0, 0, loading_bmp->w, loading_bmp->h, 0, 0, fond->w, fond->h);
     destroy_bitmap(loading_bmp);
+
+    if(fond== NULL){
+        allegro_message("Error while loading the map.");
+        allegro_exit();
+        return 1;
+    }
 
 
     blit(fond,screen,x,y,0,0,fond->w,fond->h);
 
     while(!key[KEY_ESC]){
-        if(key[KEY_RIGHT] && x<=fond->w-SCREEN_W)
+        if(key[KEY_RIGHT] && x<=fond->w-SCREEN_W){
+            draw_sprite(screen,perso[count*3],SCREEN_W/2-16,SCREEN_H/2-16);
+            count++;
+            count = count%3;
             x++;
-        if(key[KEY_LEFT] && x>=0)
+        }
+        if(key[KEY_LEFT] && x>=0){
+            draw_sprite(screen,perso[count*2],SCREEN_W/2-16,SCREEN_H/2-16);
+            count++;
+            count = count%3;
             x--;
-        if(key[KEY_UP] && y>=0 )
+        }
+        if(key[KEY_UP] && y>=0 ){
+            draw_sprite(screen,perso[count*1],SCREEN_W/2-16,SCREEN_H/2-16);
+            count++;
+            count = count%3;
             y--;
-        if(key[KEY_DOWN] && y<= fond->h - SCREEN_H)
+        }
+        if(key[KEY_DOWN] && y<= fond->h - SCREEN_H){
+            draw_sprite(screen,perso[count*4],SCREEN_W/2-16,SCREEN_H/2-16);
+            count++;
+            count = count%3;
             y++;
+        }
         blit(fond,screen,x,y,0,0,fond->w,fond->h);
     }
 
