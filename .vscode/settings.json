@@ -4,5 +4,8 @@
         "titleBar.activeBackground": "#573919",
         "titleBar.activeForeground": "#FDFAF7"
     },
-    "cmake.configureOnOpen": false
+    "cmake.configureOnOpen": false,
+    "files.associations": {
+        "stdio.h": "c"
+    }
 }

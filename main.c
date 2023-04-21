@@ -1,9 +1,5 @@
-#include <stdio.h>
-#include <allegro.h>
+#include "header.h"
 
-
-int init_allegro(void);
-int init_fond(void);
 
 int main(void) {
     
@@ -41,7 +37,7 @@ int init_allegro(void){
 int init_fond(void){
     BITMAP *loading_bmp;
     BITMAP *fond;
-    BITMAP *perso[16];
+    BITMAP *perso[4][4];
     BITMAP *buffer;
     loading_bmp = load_bitmap("map.bmp",NULL);
     int x = 0;
@@ -61,32 +57,16 @@ int init_fond(void){
         allegro_exit();
         return 1;
     }
-    int v =0;
     for(int i = 0; i<4;i++){
         for(int j = 0;j<4;j++){
-            perso[v] = create_sub_bitmap(buffer,(j%4)*48,(i%4)*64,48,64);
-            if(perso[v] == NULL){
+            perso[i][j] = create_sub_bitmap(buffer,(j%4)*48,(i%4)*64,48,64);
+            if(perso[i][j] == NULL){
             allegro_message("Error while loading character sprites.");
             allegro_exit();
             return 1;
             }
-            v++;
         }
     }
-    
-    /*
-    int sub_width = 48;
-    int sub_height = 64;
-    int k =0;
-    for(int i = 0;i<4;i++){
-        for(int j = 0;j<4;j++){
-            int sub_x = j * sub_width;
-            int sub_y = i * sub_height;
-            perso[k] = create_sub_bitmap(buffer, sub_x, sub_y, sub_width, sub_height);
-            k++;
-        }
-    }
-    */
     
 
     
@@ -108,28 +88,31 @@ int init_fond(void){
     while(!key[KEY_ESC]){
         blit(fond,buffer,x,y,0,0,fond->w,fond->h);
         if(key[KEY_RIGHT] && x<=fond->w-SCREEN_W){
-            masked_blit(perso[count*3-1],buffer,0,0,SCREEN_W/2-16,SCREEN_H/2-16,48,64);
-            //count++;
-            count = count++==5 ? count=1:count++;    // BUG ICI
-            x++;
-        }
-        if(key[KEY_LEFT] && x>=0){
-            masked_blit(perso[count*2],buffer,0,0,SCREEN_W/2-16,SCREEN_H/2-16,48,64);
+            masked_blit(perso[2][count],buffer,0,0,SCREEN_W/2-16,SCREEN_H/2-16,48,64);
             count++;
             count = count%4;
-            x--;
+            x+=3;
         }
-        if(key[KEY_UP] && y>=0 ){
-            masked_blit(perso[count*4],buffer,0,0,SCREEN_W/2-16,SCREEN_H/2-16,48,64);
+        else if(key[KEY_LEFT] && x>=0){
+            masked_blit(perso[1][count],buffer,0,0,SCREEN_W/2-16,SCREEN_H/2-16,48,64);
             count++;
             count = count%4;
-            y--;
+            x-=3;
         }
-        if(key[KEY_DOWN] && y<= fond->h - SCREEN_H){
-            masked_blit(perso[count*1],buffer,0,0,SCREEN_W/2-16,SCREEN_H/2-16,48,64);
+        else if(key[KEY_UP] && y>=0 ){
+            masked_blit(perso[3][count],buffer,0,0,SCREEN_W/2-16,SCREEN_H/2-16,48,64);
             count++;
             count = count%4;
-            y++;
+            y-=3;
+        }
+        else if(key[KEY_DOWN] && y<= fond->h - SCREEN_H){
+            masked_blit(perso[0][count],buffer,0,0,SCREEN_W/2-16,SCREEN_H/2-16,48,64);
+            count++;
+            count = count%4;
+            y+=3;
+        }
+        else{
+            masked_blit(perso[0][0],buffer,0,0,SCREEN_W/2-16,SCREEN_H/2-16,48,64);
         }
         
         blit(buffer,screen,0,0,0,0,buffer->w,buffer->h);
