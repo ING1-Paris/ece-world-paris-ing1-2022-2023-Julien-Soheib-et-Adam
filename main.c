@@ -41,14 +41,14 @@ int init_allegro(void){
 int init_fond(void){
     BITMAP *loading_bmp;
     BITMAP *fond;
-    BITMAP *perso[9];
+    BITMAP *perso[16];
     BITMAP *buffer;
     loading_bmp = load_bitmap("map.bmp",NULL);
     int x = 0;
     int y = 0;
     int count = 0;
     
-    buffer = load_bitmap("perso.bmp",NULL);
+    buffer = load_bitmap("perso_poke.bmp",NULL);
     
     if(buffer == NULL){
         allegro_message("Error while loading character sprite.");
@@ -61,59 +61,79 @@ int init_fond(void){
         allegro_exit();
         return 1;
     }
-    /*
-    for(int i = 0; i<9;i++){
-        perso[i] = create_sub_bitmap(buffer,i*16,(i%3)*16,16,16);
-        if(perso[i] == NULL){
-        allegro_message("Error while loading character sprites.");
-        allegro_exit();
-        return 1;
+    int v =0;
+    for(int i = 0; i<4;i++){
+        for(int j = 0;j<4;j++){
+            perso[v] = create_sub_bitmap(buffer,(j%4)*48,(i%4)*64,48,64);
+            if(perso[v] == NULL){
+            allegro_message("Error while loading character sprites.");
+            allegro_exit();
+            return 1;
+            }
+            v++;
+        }
     }
+    
+    /*
+    int sub_width = 48;
+    int sub_height = 64;
+    int k =0;
+    for(int i = 0;i<4;i++){
+        for(int j = 0;j<4;j++){
+            int sub_x = j * sub_width;
+            int sub_y = i * sub_height;
+            perso[k] = create_sub_bitmap(buffer, sub_x, sub_y, sub_width, sub_height);
+            k++;
+        }
     }
     */
+    
 
     
 
     fond = create_bitmap((loading_bmp->w)*2.5,(loading_bmp->h)*2.5);
     stretch_blit(loading_bmp, fond, 0, 0, loading_bmp->w, loading_bmp->h, 0, 0, fond->w, fond->h);
     destroy_bitmap(loading_bmp);    
-    //destroy_bitmap(buffer);
+    destroy_bitmap(buffer);
 
-    if(fond== NULL){
+    if(fond == NULL){
         allegro_message("Error while loading the map.");
         allegro_exit();
         return 1;
     }
 
-
+    buffer = create_bitmap(SCREEN_W,SCREEN_H);
     blit(fond,screen,x,y,0,0,fond->w,fond->h);
 
     while(!key[KEY_ESC]){
+        blit(fond,buffer,x,y,0,0,fond->w,fond->h);
         if(key[KEY_RIGHT] && x<=fond->w-SCREEN_W){
-            //draw_sprite(screen,perso[count*3],SCREEN_W/2-16,SCREEN_H/2-16);
-            count++;
-            count = count%3;
+            masked_blit(perso[count*3-1],buffer,0,0,SCREEN_W/2-16,SCREEN_H/2-16,48,64);
+            //count++;
+            count = count++==5 ? count=1:count++;    // BUG ICI
             x++;
         }
         if(key[KEY_LEFT] && x>=0){
-            //draw_sprite(screen,perso[count*2],SCREEN_W/2-16,SCREEN_H/2-16);
+            masked_blit(perso[count*2],buffer,0,0,SCREEN_W/2-16,SCREEN_H/2-16,48,64);
             count++;
-            count = count%3;
+            count = count%4;
             x--;
         }
         if(key[KEY_UP] && y>=0 ){
-            //draw_sprite(screen,perso[count*1],SCREEN_W/2-16,SCREEN_H/2-16);
+            masked_blit(perso[count*4],buffer,0,0,SCREEN_W/2-16,SCREEN_H/2-16,48,64);
             count++;
-            count = count%3;
+            count = count%4;
             y--;
         }
         if(key[KEY_DOWN] && y<= fond->h - SCREEN_H){
-            //draw_sprite(screen,perso[count*4],SCREEN_W/2-16,SCREEN_H/2-16);
+            masked_blit(perso[count*1],buffer,0,0,SCREEN_W/2-16,SCREEN_H/2-16,48,64);
             count++;
-            count = count%3;
+            count = count%4;
             y++;
         }
-        blit(fond,screen,x,y,0,0,fond->w,fond->h);
+        
+        blit(buffer,screen,0,0,0,0,buffer->w,buffer->h);
+        
     }
 
     
