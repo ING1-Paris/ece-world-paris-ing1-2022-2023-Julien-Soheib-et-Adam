@@ -5,8 +5,8 @@ int main(void) {
     
     if(init_allegro()!=0)
         return 1;
-    
-    in_game();
+    while(!key[KEY_ESC])
+        in_game();
 
     return 0;
 }END_OF_MAIN();
@@ -59,7 +59,9 @@ int in_game(void){
         return 1;
 
     while(!key[KEY_ESC]){
+
         blit(fond,buffer,x,y,0,0,fond->w,fond->h);
+
         if(key[KEY_RIGHT] && x<=fond->w-SCREEN_W){
             masked_blit(perso[de_profil_droite][count],buffer,0,0,SCREEN_W/2-16,SCREEN_H/2-16,48,64);
             count++;
@@ -87,12 +89,23 @@ int in_game(void){
         else{
             masked_blit(perso[de_face][de_face],buffer,0,0,SCREEN_W/2-16,SCREEN_H/2-16,48,64);
         }
-        
+
         blit(buffer,screen,0,0,0,0,buffer->w,buffer->h);
-        //rest(50);
+        if(checking_coordonates(&x,&y)==0){
+            in_game_snake();
+            break;
+        }
     }
 
-    
+    for(int i = 0;i<4;i++){
+        for(int j =0;j<4;j++){
+            destroy_bitmap(perso[i][j]);
+        }
+        free(perso[i]);
+    }
+    free(perso);
+    destroy_bitmap(buffer);
+    destroy_bitmap(fond);
     return 0;
 }
 
@@ -125,6 +138,7 @@ void init_bitmap(BITMAP ** fond, BITMAP ***perso){
     textout_centre_ex(screen,font,"APPUYEZ SUR UN BOUTON POUR COMMENCER A JOUER...",screen->w/2,screen->h/2,makecol(120,80,80),-1);
     readkey();
     //rest(2000);
+    //readkey();
 
     for(int i = 0; i<4;i++){
         for(int j = 0;j<nombre_sprite_perso;j++){
@@ -163,4 +177,46 @@ void init_bitmap(BITMAP ** fond, BITMAP ***perso){
 
     destroy_bitmap(loading_bmp); 
 
+}
+
+
+// check si on arrive dans une zone de mini jeu
+int checking_coordonates(int *x, int *y){
+
+    // ici test pour l'instant
+
+    if(*x>=140 && *x<=180 && *y<= 1185 && *y>=1150){
+        rest(1000);
+        in_game_snake();
+        allegro_message("ZONE DE JEUX");
+        *x = 0;
+        *y = 0;
+        return 0;
+    }
+    return 1;
+
+}
+
+
+
+void in_game_snake(void){
+    // dans le jeu de snake
+
+    BITMAP *fond_snake;
+    int color_vert_clair = makecol(86, 232, 47);
+    int color_vert_fonce = makecol(0, 192, 180);
+
+    fond_snake = create_bitmap(SCREEN_W,SCREEN_H);
+
+    for(int i = 0; i < taille_snake; i++){
+        for(int j = 0; j < taille_snake ; j++){
+            if((i+j)%2==0)
+                rectfill(fond_snake,(SCREEN_H/taille_snake)*i,(SCREEN_W/taille_snake)*j,(SCREEN_H/taille_snake)*(i+1),(SCREEN_W/taille_snake)*(j+1),color_vert_clair);
+            else
+                rectfill(fond_snake,(SCREEN_H/taille_snake)*i,(SCREEN_W/taille_snake)*j,(SCREEN_H/taille_snake)*(i+1),(SCREEN_W/taille_snake)*(j+1),color_vert_fonce);
+        }
+    }
+
+    blit(fond_snake,screen,0,0,0,0,SCREEN_W,SCREEN_H);
+    readkey();
 }
