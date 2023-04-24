@@ -6,7 +6,7 @@ int main(void) {
     if(init_allegro()!=0)
         return 1;
     
-    init_fond();
+    in_game();
 
     return 0;
 }END_OF_MAIN();
@@ -34,91 +34,133 @@ int init_allegro(void){
 }
 
 
-int init_fond(void){
-    BITMAP *loading_bmp;
+int in_game(void){
+
+    // INITIALISATION DU NECESSAIRE POUR LANCER LE JEU
     BITMAP *fond;
-    BITMAP *perso[4][4];
+    BITMAP ***perso;
     BITMAP *buffer;
-    loading_bmp = load_bitmap("map.bmp",NULL);
+
     int x = 0;
     int y = 0;
     int count = 0;
+
+    perso = (BITMAP***) malloc(sizeof(BITMAP**)*4);
+    if(perso==NULL)
+        return 1;
+
+    init_bitmap(&fond,perso);
+
     
+    
+
+    buffer = create_bitmap(SCREEN_W,SCREEN_H);
+    if(buffer==NULL)
+        return 1;
+
+    while(!key[KEY_ESC]){
+        blit(fond,buffer,x,y,0,0,fond->w,fond->h);
+        if(key[KEY_RIGHT] && x<=fond->w-SCREEN_W){
+            masked_blit(perso[de_profil_droite][count],buffer,0,0,SCREEN_W/2-16,SCREEN_H/2-16,48,64);
+            count++;
+            count = count%nombre_sprite_perso;
+            x+=velocity;
+        }
+        else if(key[KEY_LEFT] && x>=0){
+            masked_blit(perso[de_profil_gauche][count],buffer,0,0,SCREEN_W/2-16,SCREEN_H/2-16,48,64);
+            count++;
+            count = count%nombre_sprite_perso;
+            x-=velocity;
+        }
+        else if(key[KEY_UP] && y>=0 ){
+            masked_blit(perso[de_dos][count],buffer,0,0,SCREEN_W/2-16,SCREEN_H/2-16,48,64);
+            count++;
+            count = count%nombre_sprite_perso;
+            y-=velocity;
+        }
+        else if(key[KEY_DOWN] && y<= fond->h - SCREEN_H){
+            masked_blit(perso[de_face][count],buffer,0,0,SCREEN_W/2-16,SCREEN_H/2-16,48,64);
+            count++;
+            count = count%nombre_sprite_perso;
+            y+=velocity;
+        }
+        else{
+            masked_blit(perso[de_face][de_face],buffer,0,0,SCREEN_W/2-16,SCREEN_H/2-16,48,64);
+        }
+        
+        blit(buffer,screen,0,0,0,0,buffer->w,buffer->h);
+        //rest(50);
+    }
+
+    
+    return 0;
+}
+
+
+
+// FONCTION POUR INITIALISER TOUTES LES BITMAPS NECESSAIRES
+void init_bitmap(BITMAP ** fond, BITMAP ***perso){
+
+    // INIT SPRITES PERSO
+
+    BITMAP *buffer;
+
+    for(int i = 0;i<nombre_sprite_perso;i++){
+        *(perso+i) = (BITMAP**) malloc(sizeof(int*)*nombre_sprite_perso);
+        if(*(perso+i)==NULL)
+            return;
+    }
+
     buffer = load_bitmap("perso_poke.bmp",NULL);
     
     if(buffer == NULL){
         allegro_message("Error while loading character sprite.");
         allegro_exit();
-        return 1;
+        return;
     }
-    
-    if(loading_bmp == NULL){
-        allegro_message("Error while loading the map.");
-        allegro_exit();
-        return 1;
-    }
+
+    // PETIT BUG ICI A REGLER ??
+    //blit(buffer,screen,0,0,0,0,buffer->w,buffer->h);
+
+    textout_centre_ex(screen,font,"APPUYEZ SUR UN BOUTON POUR COMMENCER A JOUER...",screen->w/2,screen->h/2,makecol(120,80,80),-1);
+    readkey();
+    //rest(2000);
+
     for(int i = 0; i<4;i++){
-        for(int j = 0;j<4;j++){
-            perso[i][j] = create_sub_bitmap(buffer,(j%4)*48,(i%4)*64,48,64);
+        for(int j = 0;j<nombre_sprite_perso;j++){
+            perso[i][j] = create_sub_bitmap(buffer,(j%nombre_sprite_perso)*48,(i%4)*64,48,64);
             if(perso[i][j] == NULL){
             allegro_message("Error while loading character sprites.");
             allegro_exit();
-            return 1;
+            return;
             }
         }
     }
-    
-
-    
-
-    fond = create_bitmap((loading_bmp->w)*2.5,(loading_bmp->h)*2.5);
-    stretch_blit(loading_bmp, fond, 0, 0, loading_bmp->w, loading_bmp->h, 0, 0, fond->w, fond->h);
-    destroy_bitmap(loading_bmp);    
+       
     destroy_bitmap(buffer);
 
-    if(fond == NULL){
+    // INIT FOND DE LA MAP
+
+    BITMAP *loading_bmp;
+
+    loading_bmp = load_bitmap("map.bmp",NULL);
+    if(loading_bmp == NULL){
         allegro_message("Error while loading the map.");
         allegro_exit();
-        return 1;
+        return;
     }
 
-    buffer = create_bitmap(SCREEN_W,SCREEN_H);
-    blit(fond,screen,x,y,0,0,fond->w,fond->h);
-
-    while(!key[KEY_ESC]){
-        blit(fond,buffer,x,y,0,0,fond->w,fond->h);
-        if(key[KEY_RIGHT] && x<=fond->w-SCREEN_W){
-            masked_blit(perso[2][count],buffer,0,0,SCREEN_W/2-16,SCREEN_H/2-16,48,64);
-            count++;
-            count = count%4;
-            x+=3;
-        }
-        else if(key[KEY_LEFT] && x>=0){
-            masked_blit(perso[1][count],buffer,0,0,SCREEN_W/2-16,SCREEN_H/2-16,48,64);
-            count++;
-            count = count%4;
-            x-=3;
-        }
-        else if(key[KEY_UP] && y>=0 ){
-            masked_blit(perso[3][count],buffer,0,0,SCREEN_W/2-16,SCREEN_H/2-16,48,64);
-            count++;
-            count = count%4;
-            y-=3;
-        }
-        else if(key[KEY_DOWN] && y<= fond->h - SCREEN_H){
-            masked_blit(perso[0][count],buffer,0,0,SCREEN_W/2-16,SCREEN_H/2-16,48,64);
-            count++;
-            count = count%4;
-            y+=3;
-        }
-        else{
-            masked_blit(perso[0][0],buffer,0,0,SCREEN_W/2-16,SCREEN_H/2-16,48,64);
-        }
-        
-        blit(buffer,screen,0,0,0,0,buffer->w,buffer->h);
-        
-    }
-
+    *fond = create_bitmap((loading_bmp->w)*2.5,(loading_bmp->h)*2.5);
+    stretch_blit(loading_bmp, *fond, 0, 0, loading_bmp->w, loading_bmp->h, 0, 0, (*fond)->w, (*fond)->h);
     
-    return 0;
+
+    if(*fond == NULL){
+        allegro_message("Error while loading the map.");
+        allegro_exit();
+        return;
+    }
+
+
+    destroy_bitmap(loading_bmp); 
+
 }
