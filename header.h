@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <allegro.h>
 
 
@@ -17,4 +19,11 @@ void in_game_snake(void);
 
 #define nombre_sprite_perso 4
 
-#define taille_snake 20
+#define taille_snake 10
+
+
+
+#define true 1
+#define false 0
+
+typedef int bool;

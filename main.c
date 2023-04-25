@@ -1,13 +1,16 @@
 #include "header.h"
 
 
-int main(void) {
+int main(int argc, char* _argv[]) {
     
     if(init_allegro()!=0)
         return 1;
-    while(!key[KEY_ESC])
+    if(!argc)
         in_game();
-
+    else if(atoi(_argv[1])==0)
+        in_game_snake();
+    
+    allegro_exit();
     return 0;
 }END_OF_MAIN();
 
@@ -44,6 +47,7 @@ int in_game(void){
     int x = 0;
     int y = 0;
     int count = 0;
+    bool playing = true;
 
     perso = (BITMAP***) malloc(sizeof(BITMAP**)*4);
     if(perso==NULL)
@@ -58,7 +62,7 @@ int in_game(void){
     if(buffer==NULL)
         return 1;
 
-    while(!key[KEY_ESC]){
+    while(playing){
 
         blit(fond,buffer,x,y,0,0,fond->w,fond->h);
 
@@ -86,15 +90,20 @@ int in_game(void){
             count = count%nombre_sprite_perso;
             y+=velocity;
         }
+        else if(key[KEY_ESC])
+            playing = false;
         else{
             masked_blit(perso[de_face][de_face],buffer,0,0,SCREEN_W/2-16,SCREEN_H/2-16,48,64);
         }
 
         blit(buffer,screen,0,0,0,0,buffer->w,buffer->h);
         if(checking_coordonates(&x,&y)==0){
+            //playing = false;
             in_game_snake();
-            break;
         }
+        
+        
+        
     }
 
     for(int i = 0;i<4;i++){
@@ -186,9 +195,8 @@ int checking_coordonates(int *x, int *y){
     // ici test pour l'instant
 
     if(*x>=140 && *x<=180 && *y<= 1185 && *y>=1150){
-        rest(1000);
-        in_game_snake();
-        allegro_message("ZONE DE JEUX");
+        //in_game_snake();
+        //allegro_message("ZONE DE JEUX");
         *x = 0;
         *y = 0;
         return 0;
@@ -203,20 +211,56 @@ void in_game_snake(void){
     // dans le jeu de snake
 
     BITMAP *fond_snake;
+    BITMAP *tete_serpent;
+    BITMAP *queue_serpent;
+    BITMAP *corps_serpent;
+    BITMAP *tempons;
+
+    fond_snake = create_bitmap(SCREEN_W-200,SCREEN_H);
+
+
+    // initialisation de la queue
+    tempons = load_bitmap("queue_serpent.bmp",NULL);
+    queue_serpent = create_sub_bitmap(tempons,0,0,(fond_snake->w/taille_snake),(fond_snake->h/taille_snake));
+    destroy_bitmap(tempons);
+
+    // initialisation de la tete
+    tempons = load_bitmap("tete_serpent.bmp",NULL);
+    tete_serpent = create_sub_bitmap(tempons,0,0,(fond_snake->w/taille_snake),(fond_snake->h/taille_snake));
+    destroy_bitmap(tempons);
+
+    // initialisation du corp
+    tempons = load_bitmap("corps_serpent.bmp",NULL);
+    tete_serpent = create_sub_bitmap(tempons,0,0,(fond_snake->w/taille_snake),(fond_snake->h/taille_snake));
+
     int color_vert_clair = makecol(86, 232, 47);
     int color_vert_fonce = makecol(0, 192, 180);
 
-    fond_snake = create_bitmap(SCREEN_W,SCREEN_H);
+    
 
     for(int i = 0; i < taille_snake; i++){
         for(int j = 0; j < taille_snake ; j++){
             if((i+j)%2==0)
-                rectfill(fond_snake,(SCREEN_H/taille_snake)*i,(SCREEN_W/taille_snake)*j,(SCREEN_H/taille_snake)*(i+1),(SCREEN_W/taille_snake)*(j+1),color_vert_clair);
+                rectfill(fond_snake,(fond_snake->w/taille_snake)*i,(fond_snake->h/taille_snake)*j,(fond_snake->w/taille_snake)*(i+1),(fond_snake->h/taille_snake)*(j+1),color_vert_clair);
             else
-                rectfill(fond_snake,(SCREEN_H/taille_snake)*i,(SCREEN_W/taille_snake)*j,(SCREEN_H/taille_snake)*(i+1),(SCREEN_W/taille_snake)*(j+1),color_vert_fonce);
+                rectfill(fond_snake,(fond_snake->w/taille_snake)*i,(fond_snake->h/taille_snake)*j,(fond_snake->w/taille_snake)*(i+1),(fond_snake->h/taille_snake)*(j+1),color_vert_fonce);
         }
     }
 
-    blit(fond_snake,screen,0,0,0,0,SCREEN_W,SCREEN_H);
-    readkey();
+
+    blit(fond_snake,screen,0,0,100,0,fond_snake->w,fond_snake->h);
+
+
+    // playing part
+    BITMAP *buffer;
+
+    bool playing = true;
+
+    while(playing){
+        if(key[KEY_ESC])
+            playing = false;
+    }
+
+
+    destroy_bitmap(fond_snake);
 }
