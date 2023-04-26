@@ -5,7 +5,7 @@ int main(int argc, char* _argv[]) {
     
     if(init_allegro()!=0)
         return 1;
-    if(!argc)
+    if(argc == 1)
         in_game();
     else if(atoi(_argv[1])==0)
         in_game_snake();
@@ -99,7 +99,7 @@ int in_game(void){
         blit(buffer,screen,0,0,0,0,buffer->w,buffer->h);
         if(checking_coordonates(&x,&y)==0){
             //playing = false;
-            in_game_snake();
+            //in_game_snake();
         }
         
         
@@ -218,27 +218,44 @@ void in_game_snake(void){
 
     fond_snake = create_bitmap(SCREEN_W-200,SCREEN_H);
 
+    readkey();
 
     // initialisation de la queue
     tempons = load_bitmap("queue_serpent.bmp",NULL);
+
+    queue_serpent = create_bitmap(fond_snake->w/taille_snake,fond_snake->h/taille_snake);
+
     if(tempons==NULL)
         allegro_message("ERROR loading la queue");
-    queue_serpent = create_sub_bitmap(tempons,0,0,(fond_snake->w/taille_snake),(fond_snake->h/taille_snake));
+
+    stretch_blit(tempons,queue_serpent,0,0,tempons->w,tempons->h,0,0,queue_serpent->w,queue_serpent->h);
+
     destroy_bitmap(tempons);
 
     // initialisation de la tete
     tempons = load_bitmap("tete_serpent.bmp",NULL);
+
+    tete_serpent = create_bitmap(fond_snake->w/taille_snake,fond_snake->h/taille_snake);
+
     if(tempons==NULL)
         allegro_message("ERROR loading la tete");
-    tete_serpent = create_sub_bitmap(tempons,0,0,(fond_snake->w/taille_snake),(fond_snake->h/taille_snake));
+    stretch_blit(tempons,tete_serpent,0,0,tempons->w,tempons->h,0,0,tete_serpent->w,tete_serpent->h);
+
     destroy_bitmap(tempons);
 
     // initialisation du corp
     tempons = load_bitmap("corps_serpent.bmp",NULL);
+
+    corps_serpent = create_bitmap(fond_snake->w/taille_snake,fond_snake->h/taille_snake);
+
     if(tempons==NULL)
         allegro_message("ERROR loading le corps");
-    tete_serpent = create_sub_bitmap(tempons,0,0,(fond_snake->w/taille_snake),(fond_snake->h/taille_snake));
+
+    stretch_blit(tempons,corps_serpent,0,0,tempons->w,tempons->h,0,0,tete_serpent->w,tete_serpent->h);
+
     destroy_bitmap(tempons);
+
+    
 
     int color_vert_clair = makecol(86, 232, 47);
     int color_vert_fonce = makecol(0, 192, 180);
@@ -258,13 +275,13 @@ void in_game_snake(void){
    
 
     // playing part
-    BITMAP *buffer = create_bitmap(fond_snake->w,fond_snake->h);
+    BITMAP *buffer = create_bitmap(SCREEN_W,SCREEN_H);
 
      blit(fond_snake,buffer,0,0,100,0,fond_snake->w,fond_snake->h);
 
-     masked_blit(queue_serpent,buffer,0,0,(buffer->w/taille_snake)*4,(buffer->h/taille_snake)*3,queue_serpent->w,queue_serpent->h);
+     masked_blit(queue_serpent,buffer,0,0,(buffer->w/taille_snake)*3.5,(buffer->h/taille_snake)*3,queue_serpent->w,queue_serpent->h);
      
-    blit(buffer,screen,0,0,100,0,buffer->w,buffer->h);
+    blit(buffer,screen,0,0,0,0,buffer->w,buffer->h);
     bool playing = true;
 
     while(playing){
