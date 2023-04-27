@@ -27,3 +27,18 @@ void in_game_snake(void);
 #define false 0
 
 typedef int bool;
+
+
+
+#define haut 0
+#define bas 2
+#define droite 1
+#define gauche 3
+
+typedef struct node_snake{
+    int x;
+    int y;
+    int orientation;
+
+    struct node_snake *next;
+}node_snake;

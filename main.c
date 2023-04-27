@@ -284,9 +284,14 @@ void in_game_snake(void){
     blit(buffer,screen,0,0,0,0,buffer->w,buffer->h);
     bool playing = true;
 
+    node_snake* tete = malloc(sizeof(node_snake));
+
+    tete->orientation = droite;
+
     while(playing){
         if(key[KEY_ESC])
             playing = false;
+
     }
 
 
