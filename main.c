@@ -9,6 +9,8 @@ int main(int argc, char* _argv[]) {
         in_game();
     else if(atoi(_argv[1])==0)
         in_game_snake();
+    else if(atoi(_argv[1])==1)
+        menu();
     
     allegro_exit();
     return 0;
@@ -62,6 +64,10 @@ int in_game(void){
     if(buffer==NULL)
         return 1;
 
+    player* joueurs = (player*) malloc(sizeof(player)*2);
+    setup_player(joueurs);
+    
+
     while(playing){
 
         blit(fond,buffer,x,y,0,0,fond->w,fond->h);
@@ -96,6 +102,7 @@ int in_game(void){
             masked_blit(perso[de_face][de_face],buffer,0,0,SCREEN_W/2-16,SCREEN_H/2-16,48,64);
         }
 
+        //affichage_ath(&buffer,joueurs);
         blit(buffer,screen,0,0,0,0,buffer->w,buffer->h);
         if(checking_coordonates(&x,&y)==0){
             //playing = false;
@@ -117,6 +124,49 @@ int in_game(void){
     destroy_bitmap(fond);
     return 0;
 }
+
+
+// FONCTION POUR PARAMETRER LES JOUEURS
+
+void setup_player(player* joueurs){
+    char *nom = malloc(8);
+    strcpy(nom,"ADAM");
+    (joueurs)->name = nom;
+    (joueurs)->tickets = 5;
+
+    nom = malloc(8);
+    strcpy(nom, "SAM");
+    (joueurs+1)->name = nom;
+    (joueurs+1)->tickets = 5;
+}
+
+
+// FONCTION QUI AFFICHE L'ATH
+void affichage_ath(BITMAP** buffer, player* joueurs){
+    textout_ex(*buffer,font,(joueurs)->name,SCREEN_W-90,50,makecol(255,255,255),-1);
+
+
+    BITMAP *buffer_image = load_bitmap("ticket.bmp",NULL);
+    BITMAP *ticket = create_bitmap(15,10);
+
+    stretch_blit(buffer_image,ticket,0,0,buffer_image->w,buffer_image->h,0,0,ticket->w,ticket->h);
+
+    for(int i = 0;i<(joueurs)->tickets;i++){
+        masked_blit(ticket,*buffer,0,0,SCREEN_W-90+ticket->w*i,60,ticket->w,ticket->h);
+    }
+
+    textout_ex(*buffer,font,(joueurs+1)->name,SCREEN_W-90,90,makecol(255,255,255),-1);
+    for(int i = 0;i<(joueurs+1)->tickets;i++){
+        masked_blit(ticket,*buffer,0,0,SCREEN_W-90+ticket->w*i,100,ticket->w,ticket->h);
+    }
+
+    destroy_bitmap(ticket);
+
+}
+
+
+
+
 
 
 

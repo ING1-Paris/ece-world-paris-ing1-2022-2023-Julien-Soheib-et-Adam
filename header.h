@@ -4,6 +4,7 @@
 #include <allegro.h>
 #include <math.h>
 
+#include "menu.h"
 
 
 
@@ -49,6 +50,13 @@ typedef struct pomme
     int y;
 }pomme;
 
+typedef struct player
+{
+    char* name;
+    int tickets;    
+}player;
+
+
 
 int init_allegro(void);
 int in_game(void);
@@ -61,6 +69,8 @@ void update_coordonate_snake(node_snake *actuel, int *orientation);
 int check_mort_snake(node_snake *tete);
 void nouvelle_coordonees(pomme* actuel);
 void check_pomme(node_snake *tete, pomme* my_pomme);
+void affichage_ath(BITMAP** buffer, player* joueurs);
+void setup_player(player* joueurs);
 
 
 int is_integer(double number) {
