@@ -561,3 +561,9 @@ void affichage_snake(BITMAP** buffer, node_snake* tete,BITMAP** sprites_serpent)
 }
 
 
+
+
+
+void playing_machine(void){
+    
+}
