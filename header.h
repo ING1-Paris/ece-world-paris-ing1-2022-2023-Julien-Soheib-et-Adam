@@ -4,6 +4,7 @@
 #include <allegro.h>
 #include <math.h>
 
+
 #include "menu.h"
 
 
@@ -34,7 +35,9 @@ typedef int bool;
 #define gauche 2
 #define sans_valeur 10
 
-#define snake_speed 0.2
+#define snake_speed_base 0.2
+#define snake_speed_mid 0.4
+#define snake_speed_high 0.2
 
 typedef struct node_snake{
     float x;
@@ -68,7 +71,7 @@ void update_orienation_snake(node_snake *actuel);
 void update_coordonate_snake(node_snake *actuel, int *orientation);
 int check_mort_snake(node_snake *tete);
 void nouvelle_coordonees(pomme* actuel);
-void check_pomme(node_snake *tete, pomme* my_pomme);
+int check_pomme(node_snake *tete, pomme* my_pomme);
 void affichage_ath(BITMAP** buffer, player* joueurs);
 void setup_player(player* joueurs);
 

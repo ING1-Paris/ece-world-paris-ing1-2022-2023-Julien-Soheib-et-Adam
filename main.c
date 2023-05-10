@@ -93,7 +93,7 @@ int in_game(void){
         else if(key[KEY_DOWN] && y<= fond->h - SCREEN_H){
             masked_blit(perso[de_face][count],buffer,0,0,SCREEN_W/2-16,SCREEN_H/2-16,48,64);
             count++;
-            count = count%nombre_sprite_perso;
+            count = count%nombre_sprite_perso; 
             y+=velocity;
         }
         else if(key[KEY_ESC])
@@ -366,11 +366,15 @@ void in_game_snake(void){
 
     int orientation_donner = sans_valeur;
 
+    int taille_du_snake = 0;
+    char* taille_char = malloc(sizeof(char)*4);
+
     pomme pomme_du_terrain;
     nouvelle_coordonees(&pomme_du_terrain);
     
 
     while(playing){
+        clear_to_color(double_buffer,makecol(245,221,221));
         blit(fond_snake,buffer,0,0,0,0,fond_snake->w,fond_snake->h);
         affichage_snake(&buffer,tete,sprites_serpent);
         masked_blit(pomme_sprites,buffer,0,0,(SCREEN_W-200)/taille_snake*pomme_du_terrain.x,SCREEN_H/taille_snake*pomme_du_terrain.y,pomme_sprites->w,pomme_sprites->h);
@@ -391,8 +395,12 @@ void in_game_snake(void){
             orientation_donner = sans_valeur;
         }*/
 
-        check_pomme(tete,&pomme_du_terrain);
-        blit(buffer,double_buffer,0,0,100,0,fond_snake->w,fond_snake->h);
+        taille_du_snake+=check_pomme(tete,&pomme_du_terrain);
+        blit(buffer,double_buffer,0,0,200,0,fond_snake->w,fond_snake->h);
+
+        textprintf_centre_ex(double_buffer,font,50,50,makecol(0,0,255),-1,"Votre score :");
+        textprintf_centre_ex(double_buffer,font,50,70,makecol(0,0,255),-1,"%d",taille_du_snake);
+
         blit(double_buffer,screen,0,0,0,0,double_buffer->w,double_buffer->h);
         
         update_coordonate_snake(tete,&orientation_donner);
@@ -448,7 +456,7 @@ int check_mort_snake(node_snake *tete){
 }
 
 
-void check_pomme(node_snake *tete, pomme* my_pomme){
+int check_pomme(node_snake *tete, pomme* my_pomme){
     if(tete->x==my_pomme->x && tete->y==my_pomme->y){
         node_snake *temporaire = tete;
         while(temporaire->next->next!=NULL)
@@ -479,7 +487,9 @@ void check_pomme(node_snake *tete, pomme* my_pomme){
         new_node->orientation=temporaire->orientation;
         
         nouvelle_coordonees(my_pomme);
+        return 1;
     }
+    return 0;
 }
 
 
@@ -502,13 +512,13 @@ void update_coordonate_snake(node_snake *actuel, int *orientation){
 
     while(true){
         if(buffer->orientation == haut)
-            buffer->y-=snake_speed;
+            buffer->y-=snake_speed_high;
         else if(buffer->orientation == bas)
-            buffer->y+=snake_speed;
+            buffer->y+=snake_speed_high;
         else if(buffer->orientation == droite)
-            buffer->x+=snake_speed;
+            buffer->x+=snake_speed_high;
         else
-            buffer->x-=snake_speed;
+            buffer->x-=snake_speed_high;
         if(buffer->next==NULL)
             break;
         buffer = buffer->next;
