@@ -9,6 +9,8 @@ int main(int argc, char* _argv[]) {
         in_game();
     else if(atoi(_argv[1])==0)
         in_game_snake();
+    else if(atoi(_argv[1])==1)
+        menu();
     
     allegro_exit();
     return 0;
@@ -62,6 +64,10 @@ int in_game(void){
     if(buffer==NULL)
         return 1;
 
+    player* joueurs = (player*) malloc(sizeof(player)*2);
+    setup_player(joueurs);
+    
+
     while(playing){
 
         blit(fond,buffer,x,y,0,0,fond->w,fond->h);
@@ -87,7 +93,7 @@ int in_game(void){
         else if(key[KEY_DOWN] && y<= fond->h - SCREEN_H){
             masked_blit(perso[de_face][count],buffer,0,0,SCREEN_W/2-16,SCREEN_H/2-16,48,64);
             count++;
-            count = count%nombre_sprite_perso;
+            count = count%nombre_sprite_perso; 
             y+=velocity;
         }
         else if(key[KEY_ESC])
@@ -96,6 +102,7 @@ int in_game(void){
             masked_blit(perso[de_face][de_face],buffer,0,0,SCREEN_W/2-16,SCREEN_H/2-16,48,64);
         }
 
+        //affichage_ath(&buffer,joueurs);
         blit(buffer,screen,0,0,0,0,buffer->w,buffer->h);
         if(checking_coordonates(&x,&y)==0){
             //playing = false;
@@ -117,6 +124,49 @@ int in_game(void){
     destroy_bitmap(fond);
     return 0;
 }
+
+
+// FONCTION POUR PARAMETRER LES JOUEURS
+
+void setup_player(player* joueurs){
+    char *nom = malloc(8);
+    strcpy(nom,"ADAM");
+    (joueurs)->name = nom;
+    (joueurs)->tickets = 5;
+
+    nom = malloc(8);
+    strcpy(nom, "SAM");
+    (joueurs+1)->name = nom;
+    (joueurs+1)->tickets = 5;
+}
+
+
+// FONCTION QUI AFFICHE L'ATH
+void affichage_ath(BITMAP** buffer, player* joueurs){
+    textout_ex(*buffer,font,(joueurs)->name,SCREEN_W-90,50,makecol(255,255,255),-1);
+
+
+    BITMAP *buffer_image = load_bitmap("ticket.bmp",NULL);
+    BITMAP *ticket = create_bitmap(15,10);
+
+    stretch_blit(buffer_image,ticket,0,0,buffer_image->w,buffer_image->h,0,0,ticket->w,ticket->h);
+
+    for(int i = 0;i<(joueurs)->tickets;i++){
+        masked_blit(ticket,*buffer,0,0,SCREEN_W-90+ticket->w*i,60,ticket->w,ticket->h);
+    }
+
+    textout_ex(*buffer,font,(joueurs+1)->name,SCREEN_W-90,90,makecol(255,255,255),-1);
+    for(int i = 0;i<(joueurs+1)->tickets;i++){
+        masked_blit(ticket,*buffer,0,0,SCREEN_W-90+ticket->w*i,100,ticket->w,ticket->h);
+    }
+
+    destroy_bitmap(ticket);
+
+}
+
+
+
+
 
 
 
@@ -144,7 +194,7 @@ void init_bitmap(BITMAP ** fond, BITMAP ***perso){
     // PETIT BUG ICI A REGLER ??
     //blit(buffer,screen,0,0,0,0,buffer->w,buffer->h);
 
-    textout_centre_ex(screen,font,"APPUYEZ SUR UN BOUTON POUR COMMENCER A JOUER...",screen->w/2,screen->h/2,makecol(120,80,80),-1);
+    //textout_centre_ex(screen,font,"APPUYEZ SUR UN BOUTON POUR COMMENCER A JOUER...",screen->w/2,screen->h/2,makecol(120,80,80),-1);
     readkey();
     //rest(2000);
     //readkey();
@@ -255,6 +305,8 @@ void in_game_snake(void){
 
     destroy_bitmap(tempons);
 
+    BITMAP* sprites_serpent[3] = {tete_serpent,corps_serpent,queue_serpent};
+
     
 
     int color_vert_clair = makecol(86, 232, 47);
@@ -275,7 +327,15 @@ void in_game_snake(void){
    
 
     // playing part
-    BITMAP *buffer = create_bitmap(SCREEN_W,SCREEN_H);
+    BITMAP *buffer = create_bitmap(SCREEN_W-200,SCREEN_H);
+    BITMAP *double_buffer = create_bitmap(SCREEN_W,SCREEN_H);
+
+
+    BITMAP *pomme_sprites = create_bitmap(fond_snake->w/taille_snake,fond_snake->h/taille_snake);
+    clear_to_color(pomme_sprites,makecol(255,0,255));
+    tempons = load_bitmap("pomme.bmp",NULL);
+
+    stretch_blit(tempons,pomme_sprites,0,0,tempons->w,tempons->h,0,0,pomme_sprites->w,pomme_sprites->h);
 
      blit(fond_snake,buffer,0,0,100,0,fond_snake->w,fond_snake->h);
 
@@ -284,11 +344,226 @@ void in_game_snake(void){
     blit(buffer,screen,0,0,0,0,buffer->w,buffer->h);
     bool playing = true;
 
+    node_snake* tete = malloc(sizeof(node_snake));
+
+    tete->orientation = droite;
+    tete->x = 2;
+    tete->y = 1;
+   { 
+        node_snake *temporaire = malloc(sizeof(node_snake));
+        temporaire->orientation = droite;
+        temporaire->x=1;
+        temporaire->y=1;
+        tete->next = temporaire;
+
+        temporaire = malloc(sizeof(node_snake));
+        temporaire->orientation = droite;
+        temporaire->x=0;
+        temporaire->y=1;
+        tete->next->next = temporaire;
+        temporaire->next = NULL;
+    }
+
+    int orientation_donner = sans_valeur;
+
+    int taille_du_snake = 0;
+    char* taille_char = malloc(sizeof(char)*4);
+
+    pomme pomme_du_terrain;
+    nouvelle_coordonees(&pomme_du_terrain);
+    
+
     while(playing){
+        clear_to_color(double_buffer,makecol(245,221,221));
+        blit(fond_snake,buffer,0,0,0,0,fond_snake->w,fond_snake->h);
+        affichage_snake(&buffer,tete,sprites_serpent);
+        masked_blit(pomme_sprites,buffer,0,0,(SCREEN_W-200)/taille_snake*pomme_du_terrain.x,SCREEN_H/taille_snake*pomme_du_terrain.y,pomme_sprites->w,pomme_sprites->h);
+        
         if(key[KEY_ESC])
             playing = false;
+        if(key[KEY_UP] && tete->orientation!=bas && tete->orientation!=haut)
+            orientation_donner = haut;
+        if(key[KEY_DOWN] && tete->orientation!=bas && tete->orientation!=haut)
+            orientation_donner = bas;
+        if(key[KEY_LEFT] && tete->orientation!=gauche && tete->orientation!=droite)
+            orientation_donner = gauche;
+        if(key[KEY_RIGHT] && tete->orientation!=gauche && tete->orientation!=droite)
+            orientation_donner = droite;
+        /*
+        if(orientation_donner!=sans_valeur){
+            tete->orientation = orientation_donner;
+            orientation_donner = sans_valeur;
+        }*/
+
+        taille_du_snake+=check_pomme(tete,&pomme_du_terrain);
+        blit(buffer,double_buffer,0,0,200,0,fond_snake->w,fond_snake->h);
+
+        textprintf_centre_ex(double_buffer,font,50,50,makecol(0,0,255),-1,"Votre score :");
+        textprintf_centre_ex(double_buffer,font,50,70,makecol(0,0,255),-1,"%d",taille_du_snake);
+
+        blit(double_buffer,screen,0,0,0,0,double_buffer->w,double_buffer->h);
+        
+        update_coordonate_snake(tete,&orientation_donner);
+
+        //floating point exception du coup on arrondit
+
+        tete->x=roundf(tete->x*1000)/1000;
+        tete->y=roundf(tete->y*1000)/1000;
+
+        if(check_mort_snake(tete)){
+            playing = false;
+        }
+
+        rest(30);
     }
 
 
     destroy_bitmap(fond_snake);
+}
+
+
+void nouvelle_coordonees(pomme* actuel){
+    actuel->x = rand()%10;
+    actuel->y = rand()%10;
+}
+
+
+int check_mort_snake(node_snake *tete){
+    node_snake *temporaire = tete->next;
+    if(tete->x>9 || tete->x<0 || tete->y>9 || tete->y<0){
+        printf("PERDU");
+        rest(300);
+        readkey();
+        return true;
+    }
+    while (true)
+    {
+        if( roundf(tete->x)== roundf(temporaire->x) &&  roundf(tete->y)== roundf(temporaire->y)){
+            printf("PERDU");
+            rest(300);
+            readkey();
+            return true;
+        }
+        else if(temporaire->next!=NULL)
+            temporaire = temporaire->next;
+        else 
+            break;
+
+    }
+    
+    return false;
+
+}
+
+
+int check_pomme(node_snake *tete, pomme* my_pomme){
+    if(tete->x==my_pomme->x && tete->y==my_pomme->y){
+        node_snake *temporaire = tete;
+        while(temporaire->next->next!=NULL)
+            temporaire = temporaire->next;
+        node_snake *new_node = malloc(sizeof(node_snake));
+        new_node->next = temporaire->next;
+        temporaire->next = new_node;
+        if(temporaire->orientation==haut){
+            new_node->x = temporaire->x;
+            new_node->y = temporaire->y+1;
+            new_node->next->y++;
+        }
+        else if(temporaire->orientation==bas){
+            new_node->x = temporaire->x;
+            new_node->y = temporaire->y-1;
+            new_node->next->y--;
+        }
+        else if(temporaire->orientation==droite){
+            new_node->x = temporaire->x-1;
+            new_node->y = temporaire->y;
+            new_node->next->x--;
+        }
+        else if(temporaire->orientation==gauche){
+            new_node->x = temporaire->x+1;
+            new_node->y = temporaire->y;
+            new_node->next->x++;
+        }
+        new_node->orientation=temporaire->orientation;
+        
+        nouvelle_coordonees(my_pomme);
+        return 1;
+    }
+    return 0;
+}
+
+
+
+
+void update_coordonate_snake(node_snake *actuel, int *orientation){
+    
+    if(is_integer(actuel->x) && is_integer(actuel->y)){
+        update_orienation_snake(actuel);
+        
+        if(*orientation!=sans_valeur){
+            actuel->orientation = *orientation;
+            *orientation = sans_valeur;
+        }
+        
+    }
+    
+    
+    node_snake *buffer = actuel;
+
+    while(true){
+        if(buffer->orientation == haut)
+            buffer->y-=snake_speed_high;
+        else if(buffer->orientation == bas)
+            buffer->y+=snake_speed_high;
+        else if(buffer->orientation == droite)
+            buffer->x+=snake_speed_high;
+        else
+            buffer->x-=snake_speed_high;
+        if(buffer->next==NULL)
+            break;
+        buffer = buffer->next;
+        }
+    
+}
+
+void update_orienation_snake(node_snake *actuel){
+    if(actuel->next!=NULL){
+        update_orienation_snake(actuel->next);
+        actuel->next->orientation = actuel->orientation;
+    }
+    
+}
+
+
+void affichage_snake(BITMAP** buffer, node_snake* tete,BITMAP** sprites_serpent){
+
+    //impression de la tete
+
+    BITMAP *rotate = create_bitmap(sprites_serpent[0]->w,sprites_serpent[0]->h);
+    clear_to_color(rotate,makecol(255,0,255));
+
+    rotate_sprite(rotate,sprites_serpent[0],0,0,itofix((tete->orientation*90* 256) / 360));
+    masked_blit(rotate,*buffer,0,0,((*buffer)->w)/taille_snake*(tete->x),(*buffer)->w/taille_snake*(tete->y),sprites_serpent[0]->w,sprites_serpent[0]->h);
+
+
+    node_snake *actuel = tete->next;
+    while(actuel->next!=NULL){
+        clear_to_color(rotate,makecol(255,0,255));
+        rotate_sprite(rotate,sprites_serpent[1],0,0,itofix((actuel->orientation*90* 256) / 360));
+        masked_blit(rotate,*buffer,0,0,(*buffer)->w/taille_snake*(actuel->x),(*buffer)->w/taille_snake*(actuel->y),sprites_serpent[1]->w,sprites_serpent[1]->h);
+        actuel = actuel->next;
+    }
+
+    clear_to_color(rotate,makecol(255,0,255));
+    rotate_sprite(rotate,sprites_serpent[2],0,0,itofix((actuel->orientation*90* 256) / 360));
+    masked_blit(rotate,*buffer,0,0,(*buffer)->w/taille_snake*(actuel->x),(*buffer)->w/taille_snake*(actuel->y),sprites_serpent[2]->w,sprites_serpent[2]->h);
+    
+}
+
+
+
+
+
+void playing_machine(void){
+    
 }
