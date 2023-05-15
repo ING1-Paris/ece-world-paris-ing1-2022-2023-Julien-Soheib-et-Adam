@@ -6,12 +6,11 @@ int main(int argc, char* _argv[]) {
     if(init_allegro()!=0)
         return 1;
     if(argc == 1)
-      
         in_game();
     else if(atoi(_argv[1])==0)
         in_game_snake();
     else if(atoi(_argv[1])==1)
-        menu();
+        playing_machine();
     
     allegro_exit();
     return 0;
@@ -602,5 +601,83 @@ void affichage_snake(BITMAP** buffer, node_snake* tete,BITMAP** sprites_serpent)
 
 
 void playing_machine(void){
+    srand(time(NULL));
     
+    BITMAP* fond, *icons[10], *buffer,*fond_tempo,*tempons;
+
+    fond_tempo = load_bitmap("slot_machine.bmp",NULL);
+
+    if(fond_tempo == NULL) {
+        allegro_message("Error fond_tempo bitmaps.");
+        allegro_exit();
+        return;
+    }
+
+
+    tempons = load_bitmap("diamant_jackpot.bmp",NULL);
+    icons[0] = create_bitmap(taille_icons,taille_icons);
+
+    stretch_blit(tempons,icons[0],0,0,tempons->w,tempons->h,0,0,taille_icons,taille_icons);
+
+    destroy_bitmap(tempons);
+
+    tempons = load_bitmap("trefle_jackpot.bmp",NULL);
+    icons[1] = create_bitmap(taille_icons,taille_icons);
+
+    stretch_blit(tempons,icons[1],0,0,tempons->w,tempons->h,0,0,taille_icons,taille_icons);
+    destroy_bitmap(tempons);
+
+    tempons = load_bitmap("orange_jackpot.bmp",NULL);
+    icons[2] = create_bitmap(taille_icons,taille_icons);
+
+    stretch_blit(tempons,icons[2],0,0,tempons->w,tempons->h,0,0,taille_icons,taille_icons);
+    destroy_bitmap(tempons);
+
+
+    tempons = load_bitmap("raisain_jackpot.bmp",NULL);
+    icons[3] = create_bitmap(taille_icons,taille_icons);
+
+    stretch_blit(tempons,icons[3],0,0,tempons->w,tempons->h,0,0,taille_icons,taille_icons);
+    destroy_bitmap(tempons);
+
+
+
+    
+
+
+    fond = create_bitmap(SCREEN_W,SCREEN_H);
+
+    stretch_blit(fond_tempo,fond,0,0,fond_tempo->w,fond_tempo->h,0,0,fond->w,fond->h);
+
+    blit(fond,screen,0,0,0,0,SCREEN_W,SCREEN_H);
+
+    int* liste_retour = (int*) malloc(sizeof(int)*3);
+
+    int tirer = 0;
+
+    while(!key[KEY_ESC]){
+        if(key[KEY_ENTER]){
+            tirage_au_sort(liste_retour);
+            tirer = 1;
+        }
+        if(tirer == 1){
+            masked_blit(icons[liste_retour[0]],screen,0,0,100,SCREEN_H/2-taille_icons/2,taille_icons,taille_icons);
+            masked_blit(icons[liste_retour[1]],screen,0,0,300,SCREEN_H/2-taille_icons/2,taille_icons,taille_icons);
+            masked_blit(icons[liste_retour[2]],screen,0,0,600,SCREEN_H/2-taille_icons/2,taille_icons,taille_icons);
+            tirer=0;
+            rest(300);
+        }
+    }
+
+    readkey();
+
+    
+
+}
+
+
+void tirage_au_sort(int* liste){
+    liste[0] = rand()%4;
+    liste[1] = rand()%4;
+    liste[2] = rand()%4;
 }

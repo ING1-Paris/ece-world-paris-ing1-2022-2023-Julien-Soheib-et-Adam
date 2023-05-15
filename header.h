@@ -29,6 +29,15 @@ typedef int bool;
 
 
 
+// partie pour le tirage au sort
+
+#define taille_icons 100
+
+
+
+// fin partie pour le tirage au sort
+
+
 #define haut 3
 #define bas 1
 #define droite 0
@@ -74,6 +83,8 @@ void nouvelle_coordonees(pomme* actuel);
 int check_pomme(node_snake *tete, pomme* my_pomme);
 void affichage_ath(BITMAP** buffer, player* joueurs);
 void setup_player(player* joueurs);
+void playing_machine(void);
+void tirage_au_sort(int liste[3]);
 
 
 int is_integer(double number) {
