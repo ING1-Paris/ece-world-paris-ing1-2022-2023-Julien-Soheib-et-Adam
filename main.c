@@ -6,6 +6,7 @@ int main(int argc, char* _argv[]) {
     if(init_allegro()!=0)
         return 1;
     if(argc == 1)
+      
         in_game();
     else if(atoi(_argv[1])==0)
         in_game_snake();
