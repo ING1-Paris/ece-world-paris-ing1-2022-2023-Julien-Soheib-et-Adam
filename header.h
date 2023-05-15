@@ -63,7 +63,7 @@ typedef struct player
 
 int init_allegro(void);
 int in_game(void);
-void init_bitmap(BITMAP ** fond, BITMAP ***perso);
+void init_bitmap(BITMAP ** fond, BITMAP ***perso,BITMAP **fond_interdit);
 int checking_coordonates(int *x, int *y);
 void in_game_snake(void);
 void affichage_snake(BITMAP** buffer, node_snake* tete,BITMAP** sprites_serpent);

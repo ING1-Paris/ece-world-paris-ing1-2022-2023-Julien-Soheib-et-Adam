@@ -40,14 +40,21 @@ int init_allegro(void){
 
 
 int in_game(void){
-
+    srand(time(NULL));
     // INITIALISATION DU NECESSAIRE POUR LANCER LE JEU
     BITMAP *fond;
     BITMAP ***perso;
     BITMAP *buffer;
+    BITMAP *fond_interdit;
 
-    int x = 0;
-    int y = 0;
+    int x = 300;
+    int y = 400;
+
+    int magenta = makecol(255,0,255);
+
+    int last_dx = 0;
+    int last_dy = 0;
+
     int count = 0;
     bool playing = true;
 
@@ -55,7 +62,8 @@ int in_game(void){
     if(perso==NULL)
         return 1;
 
-    init_bitmap(&fond,perso);
+    init_bitmap(&fond,perso,&fond_interdit);
+
 
     
     
@@ -71,37 +79,46 @@ int in_game(void){
     while(playing){
 
         blit(fond,buffer,x,y,0,0,fond->w,fond->h);
-
+        
         if(key[KEY_RIGHT] && x<=fond->w-SCREEN_W){
             masked_blit(perso[de_profil_droite][count],buffer,0,0,SCREEN_W/2-16,SCREEN_H/2-16,48,64);
             count++;
             count = count%nombre_sprite_perso;
             x+=velocity;
+            last_dx = velocity;
         }
         else if(key[KEY_LEFT] && x>=0){
             masked_blit(perso[de_profil_gauche][count],buffer,0,0,SCREEN_W/2-16,SCREEN_H/2-16,48,64);
             count++;
             count = count%nombre_sprite_perso;
             x-=velocity;
+            last_dx = -velocity;
         }
         else if(key[KEY_UP] && y>=0 ){
             masked_blit(perso[de_dos][count],buffer,0,0,SCREEN_W/2-16,SCREEN_H/2-16,48,64);
             count++;
             count = count%nombre_sprite_perso;
             y-=velocity;
+            last_dy = -velocity;
         }
         else if(key[KEY_DOWN] && y<= fond->h - SCREEN_H){
             masked_blit(perso[de_face][count],buffer,0,0,SCREEN_W/2-16,SCREEN_H/2-16,48,64);
             count++;
             count = count%nombre_sprite_perso; 
             y+=velocity;
+            last_dy = velocity;
         }
         else if(key[KEY_ESC])
             playing = false;
         else{
             masked_blit(perso[de_face][de_face],buffer,0,0,SCREEN_W/2-16,SCREEN_H/2-16,48,64);
         }
-
+        if(getpixel(fond_interdit,x,y)==magenta){
+            x-=last_dx;
+            y-=last_dy;
+        }
+        last_dx = 0;
+        last_dy = 0;
         //affichage_ath(&buffer,joueurs);
         blit(buffer,screen,0,0,0,0,buffer->w,buffer->h);
         if(checking_coordonates(&x,&y)==0){
@@ -171,7 +188,7 @@ void affichage_ath(BITMAP** buffer, player* joueurs){
 
 
 // FONCTION POUR INITIALISER TOUTES LES BITMAPS NECESSAIRES
-void init_bitmap(BITMAP ** fond, BITMAP ***perso){
+void init_bitmap(BITMAP ** fond, BITMAP ***perso,BITMAP **fond_interdit){
 
     // INIT SPRITES PERSO
 
@@ -223,7 +240,7 @@ void init_bitmap(BITMAP ** fond, BITMAP ***perso){
         return;
     }
 
-    *fond = create_bitmap((loading_bmp->w)*2.5,(loading_bmp->h)*2.5);
+    *fond = create_bitmap((loading_bmp->w)*1.5,(loading_bmp->h)*1.5);
     stretch_blit(loading_bmp, *fond, 0, 0, loading_bmp->w, loading_bmp->h, 0, 0, (*fond)->w, (*fond)->h);
     
 
@@ -236,6 +253,25 @@ void init_bitmap(BITMAP ** fond, BITMAP ***perso){
 
     destroy_bitmap(loading_bmp); 
 
+    // bitmap interdit de penetrer
+
+    BITMAP* last;
+    last = load_bitmap("map_interdit.bmp",NULL);
+
+    if(last == NULL){
+        allegro_message("Error while loading the map forbiden");
+        allegro_exit();
+        return;
+    }
+
+    *fond_interdit = create_bitmap((last->w)*1.5,(last->h)*1.5);
+    stretch_blit(last, *fond_interdit, 0, 0, last->w, last->h, 0, 0, (*fond_interdit)->w, (*fond_interdit)->h);
+
+     if(*fond_interdit == NULL){
+        allegro_message("Error while loading the map interdit.");
+        allegro_exit();
+        return;
+    }
 }
 
 
