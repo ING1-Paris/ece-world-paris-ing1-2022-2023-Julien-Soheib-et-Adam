@@ -605,6 +605,8 @@ void playing_machine(void){
     
     BITMAP* fond, *icons[10], *buffer,*fond_tempo,*tempons;
 
+    buffer = create_bitmap(SCREEN_W,SCREEN_H);
+
     fond_tempo = load_bitmap("slot_machine.bmp",NULL);
 
     if(fond_tempo == NULL) {
@@ -613,6 +615,11 @@ void playing_machine(void){
         return;
     }
 
+    fond = create_bitmap(SCREEN_W,SCREEN_H);
+
+    stretch_blit(fond_tempo,fond,0,0,fond_tempo->w,fond_tempo->h,0,0,fond->w,fond->h);
+
+    destroy_bitmap(fond_tempo);
 
     tempons = load_bitmap("diamant_jackpot.bmp",NULL);
     icons[0] = create_bitmap(taille_icons,taille_icons);
@@ -640,44 +647,142 @@ void playing_machine(void){
     stretch_blit(tempons,icons[3],0,0,tempons->w,tempons->h,0,0,taille_icons,taille_icons);
     destroy_bitmap(tempons);
 
+    tempons = load_bitmap("cloche_jackpot.bmp",NULL);
+    icons[4] = create_bitmap(taille_icons,taille_icons);
+
+    stretch_blit(tempons,icons[4],0,0,tempons->w,tempons->h,0,0,taille_icons,taille_icons);
+    destroy_bitmap(tempons);
+
+    tempons = load_bitmap("fraise_jackpot.bmp",NULL);
+    icons[5] = create_bitmap(taille_icons,taille_icons);
+
+    stretch_blit(tempons,icons[5],0,0,tempons->w,tempons->h,0,0,taille_icons,taille_icons);
+    destroy_bitmap(tempons);
+
+    tempons = load_bitmap("orange_jackpot.bmp",NULL);
+    icons[6] = create_bitmap(taille_icons,taille_icons);
+
+    stretch_blit(tempons,icons[6],0,0,tempons->w,tempons->h,0,0,taille_icons,taille_icons);
+    destroy_bitmap(tempons);
+
+    tempons = load_bitmap("pasteque_jackpot.bmp",NULL);
+    icons[7] = create_bitmap(taille_icons,taille_icons);
+
+    stretch_blit(tempons,icons[7],0,0,tempons->w,tempons->h,0,0,taille_icons,taille_icons);
+    destroy_bitmap(tempons);
+
+    tempons = load_bitmap("pierre_jackpot.bmp",NULL);
+    icons[8] = create_bitmap(taille_icons,taille_icons);
+
+    stretch_blit(tempons,icons[8],0,0,tempons->w,tempons->h,0,0,taille_icons,taille_icons);
+    destroy_bitmap(tempons);
+
+    tempons = load_bitmap("win.bmp",NULL);
+    icons[9] = create_bitmap(400,200);
+
+    stretch_blit(tempons,icons[9],0,0,tempons->w,tempons->h,0,0,icons[9]->w,icons[9]->h);
+    destroy_bitmap(tempons);
 
 
-    
+    int* liste_gagnant = (int*) malloc(sizeof(int)*3);
 
+    int* position_chargement_gauche = malloc(sizeof(int)*5);
+    int* position_chargement_droite = malloc(sizeof(int)*5);
 
-    fond = create_bitmap(SCREEN_W,SCREEN_H);
-
-    stretch_blit(fond_tempo,fond,0,0,fond_tempo->w,fond_tempo->h,0,0,fond->w,fond->h);
-
-    blit(fond,screen,0,0,0,0,SCREEN_W,SCREEN_H);
-
-    int* liste_retour = (int*) malloc(sizeof(int)*3);
-
-    int tirer = 0;
-
-    while(!key[KEY_ESC]){
-        if(key[KEY_ENTER]){
-            tirage_au_sort(liste_retour);
-            tirer = 1;
-        }
-        if(tirer == 1){
-            masked_blit(icons[liste_retour[0]],screen,0,0,100,SCREEN_H/2-taille_icons/2,taille_icons,taille_icons);
-            masked_blit(icons[liste_retour[1]],screen,0,0,300,SCREEN_H/2-taille_icons/2,taille_icons,taille_icons);
-            masked_blit(icons[liste_retour[2]],screen,0,0,600,SCREEN_H/2-taille_icons/2,taille_icons,taille_icons);
-            tirer=0;
-            rest(300);
-        }
+    for(int i = 0; i<5 ; i++){
+        position_chargement_droite[i] = SCREEN_W/5*i;
+        position_chargement_gauche[i] = SCREEN_W/5*i;
     }
 
-    readkey();
+    int* type_icon_gauche = malloc(sizeof(int)*5);
+    int* type_icon_droite = malloc(sizeof(int)*5);
+
+    for(int i = 0;i<5;i++){
+        type_icon_droite[i] = rand()%9;
+        type_icon_gauche[i] = rand()%9;
+    }
+
+
+
+    while(!key[KEY_ESC]){
+
+        ecran_acceuil_jackpot(icons,&buffer,position_chargement_gauche,position_chargement_droite,type_icon_droite,type_icon_gauche);
+       
+
+        if(key[KEY_ENTER]){
+            tirage_au_sort(liste_gagnant);
+            affichage_jackpot(icons,fond,liste_gagnant);
+            readkey();
+        }
+        rest(50);
+    }
 
     
+    if(liste_gagnant[0]==liste_gagnant[1] && liste_gagnant[0]==liste_gagnant[2]){
+        return;
+    }
 
+    for(int i =0;i<10;i++){
+        destroy_bitmap(icons[i]);
+    }
+    destroy_bitmap(fond);
+    destroy_bitmap(buffer);
+    
+    
+
+}
+
+void affichage_jackpot(BITMAP **icons, BITMAP* fond,int* winner){
+    BITMAP *buffer = create_bitmap(SCREEN_W,SCREEN_H);
+    for(int i = 0;i<50;i++){
+        blit(fond,buffer,0,0,0,0,SCREEN_W,SCREEN_H);
+        masked_blit(icons[rand()%9],buffer,0,0,taille_icons,SCREEN_H/2-taille_icons/2,taille_icons,taille_icons);
+        masked_blit(icons[rand()%9],buffer,0,0,SCREEN_W/3+taille_icons,SCREEN_H/2-taille_icons/2,taille_icons,taille_icons);
+        masked_blit(icons[rand()%9],buffer,0,0,SCREEN_W/3*2+taille_icons,SCREEN_H/2-taille_icons/2,taille_icons,taille_icons);
+        blit(buffer,screen,0,0,0,0,SCREEN_W,SCREEN_H);
+        rest(6*i);
+    }
+    blit(fond,buffer,0,0,0,0,SCREEN_W,SCREEN_H);
+    masked_blit(icons[winner[0]],buffer,0,0,taille_icons,SCREEN_H/2-taille_icons/2,taille_icons,taille_icons);
+    masked_blit(icons[winner[1]],buffer,0,0,SCREEN_W/3+taille_icons,SCREEN_H/2-taille_icons/2,taille_icons,taille_icons);
+    masked_blit(icons[winner[2]],buffer,0,0,SCREEN_W/3*2+taille_icons,SCREEN_H/2-taille_icons/2,taille_icons,taille_icons);
+    blit(buffer,screen,0,0,0,0,SCREEN_W,SCREEN_H);
+    rest(900);
+    if(winner[0]==winner[1] && winner[0]==winner[2]){
+        clear_to_color(buffer,makecol(0,0,0));
+        masked_blit(icons[9],buffer,0,0,SCREEN_W/2-icons[9]->w/2,SCREEN_H/2-icons[9]->h/2,icons[9]->w,icons[9]->h);
+        blit(buffer,screen,0,0,0,0,SCREEN_W,SCREEN_H);
+        return;
+    }
 }
 
 
 void tirage_au_sort(int* liste){
-    liste[0] = rand()%4;
-    liste[1] = rand()%4;
-    liste[2] = rand()%4;
+    liste[0] = rand()%1;
+    liste[1] = rand()%1;
+    liste[2] = rand()%1;
 }
+
+void ecran_acceuil_jackpot(BITMAP **icons,BITMAP ** buffer,int* position_chargement_gauche, int* position_chargement_droite,int *type_icon_droite,int * type_icon_gauche){
+ 
+    clear_to_color(*buffer,makecol(0,0,0));
+    textprintf_centre_ex(*buffer,font,SCREEN_W/2,SCREEN_H/2,makecol(250,250,255),-1,"Appuyez sur la touche entrer afin de commencer a jouer");
+    
+    for(int i = 0;i<5;i++){
+        masked_blit(icons[type_icon_droite[i]],*buffer,0,0,680,position_chargement_droite[i],taille_icons,taille_icons);
+        masked_blit(icons[type_icon_gauche[i]],*buffer,0,0,50,position_chargement_gauche[i],taille_icons,taille_icons);
+        position_chargement_droite[i] +=5;
+        position_chargement_gauche[i]-=5;
+        if(position_chargement_droite[i]>SCREEN_H+taille_icons){
+            type_icon_droite[i] = rand()%9;
+            position_chargement_droite[i] = -taille_icons;
+        }
+        if(position_chargement_gauche[i]<-taille_icons){
+            type_icon_gauche[i] = rand()%9;
+            position_chargement_gauche[i] = SCREEN_H+taille_icons;
+        }
+        
+    }
+    blit(*buffer,screen,0,0,0,0,SCREEN_W,SCREEN_H);
+    
+}       

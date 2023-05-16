@@ -84,7 +84,11 @@ int check_pomme(node_snake *tete, pomme* my_pomme);
 void affichage_ath(BITMAP** buffer, player* joueurs);
 void setup_player(player* joueurs);
 void playing_machine(void);
-void tirage_au_sort(int liste[3]);
+void tirage_au_sort(int *liste);
+void affichage_jackpot(BITMAP **icons, BITMAP* fond,int* winner);
+
+void ecran_acceuil_jackpot(BITMAP **icons,BITMAP ** buffer,int* position_chargement_gauche, int* position_chargement_droite,int *type_icon_droite,int * type_icon_gauche);
+void affichage_jackpot(BITMAP **icons, BITMAP* fond,int* winner);
 
 
 int is_integer(double number) {
