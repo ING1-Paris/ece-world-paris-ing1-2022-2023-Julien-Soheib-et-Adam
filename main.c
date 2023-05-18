@@ -47,13 +47,11 @@ int in_game(void){
     BITMAP *buffer;
     BITMAP *fond_interdit;
 
-    int x = 300;
-    int y = 400;
+    
 
     int magenta = makecol(255,0,255);
 
-    int last_dx = 0;
-    int last_dy = 0;
+    
 
     int count = 0;
     bool playing = true;
@@ -64,9 +62,11 @@ int in_game(void){
 
     init_bitmap(&fond,perso,&fond_interdit);
 
-
+    int x = fond->w/2;
+    int y = fond->h/2;
     
-    
+    int last_x = x;
+    int last_y = y;
 
     buffer = create_bitmap(SCREEN_W,SCREEN_H);
     if(buffer==NULL)
@@ -85,40 +85,39 @@ int in_game(void){
             count++;
             count = count%nombre_sprite_perso;
             x+=velocity;
-            last_dx = velocity;
         }
         else if(key[KEY_LEFT] && x>=0){
             masked_blit(perso[de_profil_gauche][count],buffer,0,0,SCREEN_W/2-16,SCREEN_H/2-16,48,64);
             count++;
             count = count%nombre_sprite_perso;
             x-=velocity;
-            last_dx = -velocity;
         }
         else if(key[KEY_UP] && y>=0 ){
             masked_blit(perso[de_dos][count],buffer,0,0,SCREEN_W/2-16,SCREEN_H/2-16,48,64);
             count++;
             count = count%nombre_sprite_perso;
             y-=velocity;
-            last_dy = -velocity;
         }
         else if(key[KEY_DOWN] && y<= fond->h - SCREEN_H){
             masked_blit(perso[de_face][count],buffer,0,0,SCREEN_W/2-16,SCREEN_H/2-16,48,64);
             count++;
             count = count%nombre_sprite_perso; 
             y+=velocity;
-            last_dy = velocity;
         }
         else if(key[KEY_ESC])
             playing = false;
         else{
             masked_blit(perso[de_face][de_face],buffer,0,0,SCREEN_W/2-16,SCREEN_H/2-16,48,64);
         }
-        if(getpixel(fond_interdit,x,y)==magenta){
-            x-=last_dx;
-            y-=last_dy;
+        /*
+        if(getpixel(fond_interdit,x,y)==magenta || getpixel(fond_interdit,x+48,y+64)==magenta || getpixel(fond_interdit,x,y+64)==magenta || getpixel(fond_interdit,x+48,y)==magenta){
+            printf("magenta\n");
+            x=last_x;
+            y=last_y;
         }
-        last_dx = 0;
-        last_dy = 0;
+        */
+        last_x = x;
+        last_y = y;
         //affichage_ath(&buffer,joueurs);
         blit(buffer,screen,0,0,0,0,buffer->w,buffer->h);
         if(checking_coordonates(&x,&y)==0){
@@ -734,7 +733,7 @@ void playing_machine(void){
 
 void affichage_jackpot(BITMAP **icons, BITMAP* fond,int* winner){
     BITMAP *buffer = create_bitmap(SCREEN_W,SCREEN_H);
-    for(int i = 0;i<50;i++){
+    for(int i = 0;i<30;i++){
         blit(fond,buffer,0,0,0,0,SCREEN_W,SCREEN_H);
         masked_blit(icons[rand()%9],buffer,0,0,taille_icons,SCREEN_H/2-taille_icons/2,taille_icons,taille_icons);
         masked_blit(icons[rand()%9],buffer,0,0,SCREEN_W/3+taille_icons,SCREEN_H/2-taille_icons/2,taille_icons,taille_icons);
