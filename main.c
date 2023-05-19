@@ -12,6 +12,7 @@ int main(int argc, char* _argv[]) {
     else if(atoi(_argv[1])==1)
         playing_machine();
     
+    
     allegro_exit();
     return 0;
 }END_OF_MAIN();
@@ -407,8 +408,10 @@ void in_game_snake(void){
     pomme pomme_du_terrain;
     nouvelle_coordonees(&pomme_du_terrain);
     
-
+    clock_t actuel, debut;
+    debut = clock();
     while(playing){
+        actuel = clock();
         clear_to_color(double_buffer,makecol(245,221,221));
         blit(fond_snake,buffer,0,0,0,0,fond_snake->w,fond_snake->h);
         affichage_snake(&buffer,tete,sprites_serpent);
@@ -424,17 +427,17 @@ void in_game_snake(void){
             orientation_donner = gauche;
         if(key[KEY_RIGHT] && tete->orientation!=gauche && tete->orientation!=droite)
             orientation_donner = droite;
-        /*
-        if(orientation_donner!=sans_valeur){
-            tete->orientation = orientation_donner;
-            orientation_donner = sans_valeur;
-        }*/
+        
 
         taille_du_snake+=check_pomme(tete,&pomme_du_terrain);
         blit(buffer,double_buffer,0,0,200,0,fond_snake->w,fond_snake->h);
 
-        textprintf_centre_ex(double_buffer,font,50,50,makecol(0,0,255),-1,"Votre score :");
-        textprintf_centre_ex(double_buffer,font,50,70,makecol(0,0,255),-1,"%d",taille_du_snake);
+        textprintf_centre_ex(double_buffer,font,100,50,makecol(0,0,255),-1,"Votre score :");
+        textprintf_centre_ex(double_buffer,font,100,70,makecol(0,0,255),-1,"%d",taille_du_snake);
+
+
+        textprintf_centre_ex(double_buffer,font,100,150,makecol(0,0,255),-1,"%.2f",(double)(debut+actuel)/CLOCKS_PER_SEC);
+        textprintf_centre_ex(double_buffer,font,100,130,makecol(0,0,255),-1,"Temps depuis le départ :");
 
         blit(double_buffer,screen,0,0,0,0,double_buffer->w,double_buffer->h);
         
@@ -600,6 +603,7 @@ void affichage_snake(BITMAP** buffer, node_snake* tete,BITMAP** sprites_serpent)
 
 
 void playing_machine(void){
+    
     srand(time(NULL));
     
     BITMAP* fond, *icons[10], *buffer,*fond_tempo,*tempons;
@@ -713,7 +717,7 @@ void playing_machine(void){
             affichage_jackpot(icons,fond,liste_gagnant);
             readkey();
         }
-        rest(50);
+        //rest(50);
     }
 
     
@@ -751,6 +755,8 @@ void affichage_jackpot(BITMAP **icons, BITMAP* fond,int* winner){
         clear_to_color(buffer,makecol(0,0,0));
         masked_blit(icons[9],buffer,0,0,SCREEN_W/2-icons[9]->w/2,SCREEN_H/2-icons[9]->h/2,icons[9]->w,icons[9]->h);
         blit(buffer,screen,0,0,0,0,SCREEN_W,SCREEN_H);
+        rest(3000);
+        readkey();
         return;
     }
 }
@@ -764,14 +770,14 @@ void tirage_au_sort(int* liste){
 
 void ecran_acceuil_jackpot(BITMAP **icons,BITMAP ** buffer,int* position_chargement_gauche, int* position_chargement_droite,int *type_icon_droite,int * type_icon_gauche){
  
-    clear_to_color(*buffer,makecol(0,0,0));
+    clear_to_color(*buffer,makecol(120,180,100));
     textprintf_centre_ex(*buffer,font,SCREEN_W/2,SCREEN_H/2,makecol(250,250,255),-1,"Appuyez sur la touche entrer afin de commencer a jouer");
     
     for(int i = 0;i<5;i++){
         masked_blit(icons[type_icon_droite[i]],*buffer,0,0,680,position_chargement_droite[i],taille_icons,taille_icons);
         masked_blit(icons[type_icon_gauche[i]],*buffer,0,0,50,position_chargement_gauche[i],taille_icons,taille_icons);
-        position_chargement_droite[i] +=5;
-        position_chargement_gauche[i]-=5;
+        position_chargement_droite[i] ++;
+        position_chargement_gauche[i]--;
         if(position_chargement_droite[i]>SCREEN_H+taille_icons){
             type_icon_droite[i] = rand()%9;
             position_chargement_droite[i] = -taille_icons;
@@ -785,3 +791,6 @@ void ecran_acceuil_jackpot(BITMAP **icons,BITMAP ** buffer,int* position_chargem
     blit(*buffer,screen,0,0,0,0,SCREEN_W,SCREEN_H);
     
 }       
+
+
+
