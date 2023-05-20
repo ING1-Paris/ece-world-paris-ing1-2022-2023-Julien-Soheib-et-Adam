@@ -793,4 +793,51 @@ void ecran_acceuil_jackpot(BITMAP **icons,BITMAP ** buffer,int* position_chargem
 }       
 
 
+void jeu_compteur(void){
+    clock_t debut,actuel;
+    int click=0;
+    int playing =0;
+    BITMAP *buffer = create_bitmap(SCREEN_W,SCREEN_H);
+    int unclick = 1;
+    while(!key[KEY_ESC]){
+        if(playing==1){
+
+
+            
+            actuel = clock();
+            
+
+            clear_to_color(buffer,makecol(120,200,100));
+            textprintf_centre_ex(buffer,font,SCREEN_W/2,SCREEN_H/2,makecol(255,255,0),-1,"Votre score actuel est de %i",click);
+            textprintf_centre_ex(buffer,font,SCREEN_W-100,30,makecol(255,255,0),-1,"Temps : %.2f seconde restante",(double) 10-((double)(actuel-debut)/CLOCKS_PER_SEC));
+            blit(buffer,screen,0,0,0,0,SCREEN_W,SCREEN_H);
+            if(mouse_b & 1 && unclick==1){
+                click++;
+                unclick = 0;
+            }
+            else if(!(mouse_b & 1) && unclick==0)
+                unclick = 1;
+
+            if((double)(actuel-debut)/CLOCKS_PER_SEC>10){
+                clear_to_color(buffer,makecol(120,200,100));
+                textprintf_centre_ex(buffer,font,SCREEN_W/2,SCREEN_H/2,makecol(255,255,0),-1,"Votre score final est de %i, Bravo !",click);
+                blit(buffer,screen,0,0,0,0,SCREEN_W,SCREEN_H);
+                printf("oui\n");
+                rest(3000);
+                readkey();
+                playing = 0;
+            }
+            
+        }
+        else{
+            clear_to_color(buffer,makecol(120,200,100));
+            textprintf_centre_ex(buffer,font,SCREEN_W/2,SCREEN_H/2,makecol(255,255,0),-1,"Appuyer sur la touche entrer pour commencer a joueur");
+            blit(buffer,screen,0,0,0,0,SCREEN_W,SCREEN_H);
+            if(key[KEY_ENTER]){
+                playing = 1;
+                debut = clock();
+            }
+        }
+    }
+}
 
