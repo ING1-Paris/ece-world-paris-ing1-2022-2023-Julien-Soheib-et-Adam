@@ -468,7 +468,7 @@ void in_game_snake(int* score_finale , double * temps_finale){
         textprintf_centre_ex(double_buffer,font,100,70,makecol(0,0,255),-1,"%d",taille_du_snake);
 
 
-        textprintf_centre_ex(double_buffer,font,100,150,makecol(0,0,255),-1,"%.2f",(double)(debut+actuel)/CLOCKS_PER_SEC);
+        textprintf_centre_ex(double_buffer,font,100,150,makecol(0,0,255),-1,"%.2f",(double)(actuel-debut)/CLOCKS_PER_SEC);
         textprintf_centre_ex(double_buffer,font,100,130,makecol(0,0,255),-1,"Temps depuis le départ :");
 
         blit(double_buffer,screen,0,0,0,0,double_buffer->w,double_buffer->h);
@@ -488,8 +488,13 @@ void in_game_snake(int* score_finale , double * temps_finale){
     }
 
     *score_finale = taille_du_snake;
-    *temps_finale =  (double)(debut+actuel)/CLOCKS_PER_SEC;
+    *temps_finale =  (double)(actuel-debut)/CLOCKS_PER_SEC;
     destroy_bitmap(fond_snake);
+    destroy_bitmap(buffer);
+    destroy_bitmap(double_buffer);
+    destroy_bitmap(tete_serpent);
+    destroy_bitmap(queue_serpent);
+    destroy_bitmap(corps_serpent);
 
 }
 
@@ -503,7 +508,6 @@ void nouvelle_coordonees(pomme* actuel){
 int check_mort_snake(node_snake *tete){
     node_snake *temporaire = tete->next;
     if(tete->x>9 || tete->x<0 || tete->y>9 || tete->y<0){
-        printf("PERDU");
         rest(300);
         readkey();
         return true;
@@ -511,7 +515,6 @@ int check_mort_snake(node_snake *tete){
     while (true)
     {
         if( roundf(tete->x)== roundf(temporaire->x) &&  roundf(tete->y)== roundf(temporaire->y)){
-            printf("PERDU");
             rest(300);
             readkey();
             return true;
