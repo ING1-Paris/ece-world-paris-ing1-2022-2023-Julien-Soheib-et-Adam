@@ -78,6 +78,7 @@ void init_bitmap(BITMAP ** fond, BITMAP ***perso,BITMAP **fond_interdit);
 int checking_coordonates(int *x, int *y);
 void in_game_snake(int* score_finale , double * temps_finale);
 void snake_game(player* joueur);
+void saisir_nom(player* joueur);
 void affichage_snake(BITMAP** buffer, node_snake* tete,BITMAP** sprites_serpent);
 void update_orienation_snake(node_snake *actuel);
 void update_coordonate_snake(node_snake *actuel, int *orientation);

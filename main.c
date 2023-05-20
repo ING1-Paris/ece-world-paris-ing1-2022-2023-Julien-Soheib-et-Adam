@@ -5,9 +5,10 @@ int main(int argc, char* _argv[]) {
     
     if(init_allegro()!=0)
         return 1;
-
+    
     player* joueurs = malloc(sizeof(joueurs)*2);
     setup_player(joueurs);
+    
     if(argc == 1)
         in_game();
     else if(atoi(_argv[1])==0)
@@ -21,6 +22,7 @@ int main(int argc, char* _argv[]) {
     allegro_exit();
     return 0;
 }END_OF_MAIN();
+
 
 
 int init_allegro(void){
@@ -151,15 +153,52 @@ int in_game(void){
 // FONCTION POUR PARAMETRER LES JOUEURS
 
 void setup_player(player* joueurs){
-    char *nom = malloc(8);
-    strcpy(nom,"ADAM");
-    (joueurs)->name = nom;
-    (joueurs)->tickets = 5;
+    BITMAP * buffer = create_bitmap(SCREEN_W,SCREEN_H);
+    int touche;
+    char charactere;
+    int joueur_saisie = 0;
+    int index_saisie_nom = 0;
+    char nom_joueur[2][50];
+    char* joueur_numero[2] = {"premier","deuxième"};
+    while(!key[KEY_ESC] || joueur_saisie==2){
+        clear_to_color(buffer,makecol(100,0,220));
+        textprintf_centre_ex(buffer,font,SCREEN_W/2,SCREEN_H/12,makecol(100,200,20),-1,"BIENVENUE DANS ECE WORLD");
+        textprintf_centre_ex(buffer,font,SCREEN_W/2,SCREEN_H/2-50,makecol(100,200,20),-1,"Saisie le nom du %s joueur : ",joueur_numero[joueur_saisie]);
+        
+        textprintf_centre_ex(buffer,font,SCREEN_W/2,SCREEN_H/2,makecol(100,200,20),-1,"%s",nom_joueur[joueur_saisie]);
+        textprintf_centre_ex(buffer,font,SCREEN_W/2,SCREEN_H/2+100,makecol(100,200,20),-1,"appuie sur entré lorsque tu as fini");
+        blit(buffer,screen,0,0,0,0,SCREEN_W,SCREEN_H);
+        if(keypressed()){
+            touche = readkey();
+            charactere = touche & 0xff;
+            if(charactere==8 && index_saisie_nom>0){
+                index_saisie_nom--;
+                nom_joueur[joueur_saisie][index_saisie_nom] = '\0';
+                
+            }
+            if(charactere==13 && index_saisie_nom>0){
+                nom_joueur[joueur_saisie][index_saisie_nom] = '\0';
+                joueur_saisie++;
+                index_saisie_nom = 0;
+            }
+            if(charactere>=32 && charactere <=126 && index_saisie_nom<49){
+                nom_joueur[joueur_saisie][index_saisie_nom] = charactere;
+                index_saisie_nom++;
+            }
+        }
+        
+        
+    }
 
-    nom = malloc(8);
-    strcpy(nom, "SAM");
-    (joueurs+1)->name = nom;
-    (joueurs+1)->tickets = 5;
+    for(int i =0;i<2;i++){
+        char* nom = malloc(sizeof(nom_joueur[i]));
+        strcpy(nom,nom_joueur[i]);
+        joueurs[i].name = nom;
+        joueurs[i].tickets = 1;
+    }
+    
+
+    
 }
 
 
