@@ -11,7 +11,7 @@ int main(int argc, char* _argv[]) {
     if(argc == 1)
         in_game();
     else if(atoi(_argv[1])==0)
-        in_game_snake(joueurs);
+        snake_game(joueurs);
     else if(atoi(_argv[1])==1)
         playing_machine(joueurs,0);
     else if(atoi(_argv[1])==2)
@@ -296,9 +296,36 @@ int checking_coordonates(int *x, int *y){
 
 }
 
+void snake_game(player* joueur){
+    BITMAP * buffer = create_bitmap(SCREEN_W,SCREEN_H);
+    int compteur_joueur = 0;
+    int score_joueur[2] = {0,0};
+    double temps_joueur[2] = {0.0,0.0};
+    while(!key[KEY_ESC]){
+        if(key[KEY_ENTER]){
+            in_game_snake(&score_joueur[compteur_joueur],&temps_joueur[compteur_joueur]);
+            compteur_joueur++;
+            if(compteur_joueur==2){
+                int winner = score_joueur[0]>score_joueur[1] ? 0 : score_joueur[0]<score_joueur[1]? 1:temps_joueur[0]<temps_joueur[1] ? 0:1; 
+                clear_to_color(buffer,makecol(100,100,40));
+                textprintf_centre_ex(buffer,font,SCREEN_W/2,SCREEN_H/2,makecol(86, 232, 47),-1,"%s à gagné bravo !",joueur[winner].name);
+                textprintf_centre_ex(buffer,font,SCREEN_W/2,SCREEN_H/2+50,makecol(86, 232, 47),-1,"%s tu gagnes 2 tickets !",joueur[winner].name);
+                blit(buffer,screen,0,0,0,0,SCREEN_W,SCREEN_H);
+                joueur[winner].tickets++;
+                rest(5000);
+                readkey();
+            }
+        }
+        clear_to_color(buffer,makecol(60,200,120));
+        textprintf_centre_ex(buffer,font,SCREEN_W/2,SCREEN_H/2,makecol(86, 0, 47),-1,"Pret a jouer ? C'est au tour de %s",joueur[compteur_joueur].name);
+        blit(buffer,screen,0,0,0,0,SCREEN_W,SCREEN_H);
+        
+    }
+}
 
 
-void in_game_snake(player* joueur){
+
+void in_game_snake(int* score_finale , double * temps_finale){
     // dans le jeu de snake
 
     BITMAP *fond_snake;
@@ -460,8 +487,10 @@ void in_game_snake(player* joueur){
         rest(30);
     }
 
-
+    *score_finale = taille_du_snake;
+    *temps_finale =  (double)(debut+actuel)/CLOCKS_PER_SEC;
     destroy_bitmap(fond_snake);
+
 }
 
 
