@@ -7,7 +7,6 @@ int main(int argc, char* _argv[]) {
         return 1;
     
     player* joueurs = malloc(sizeof(joueurs)*2);
-    setup_player(joueurs);
     
     if(argc == 1)
         in_game();
@@ -59,6 +58,8 @@ int in_game(void){
 
     int magenta = makecol(255,0,255);
 
+    player* joueurs = (player*) malloc(sizeof(player)*2);
+    setup_player(joueurs);
     
 
     int count = 0;
@@ -80,8 +81,7 @@ int in_game(void){
     if(buffer==NULL)
         return 1;
 
-    player* joueurs = (player*) malloc(sizeof(player)*2);
-    setup_player(joueurs);
+    
     
 
     while(playing){
@@ -126,7 +126,12 @@ int in_game(void){
         */
         last_x = x;
         last_y = y;
-        //affichage_ath(&buffer,joueurs);
+        
+        for(int i = 0; i<2;i++){
+            textprintf_centre_ex(buffer,font,SCREEN_W-120,50+(10*i),makecol(255,255,255),-1,"%s",joueurs[i].name);
+            textprintf_centre_ex(buffer,font,SCREEN_W-60,50+(10*i),makecol(255,255,255),-1,"%i tickets",joueurs[i].tickets);
+        }
+        
         blit(buffer,screen,0,0,0,0,buffer->w,buffer->h);
         if(checking_coordonates(&x,&y)==0){
             //playing = false;
@@ -160,7 +165,7 @@ void setup_player(player* joueurs){
     int index_saisie_nom = 0;
     char nom_joueur[2][50];
     char* joueur_numero[2] = {"premier","deuxième"};
-    while(!key[KEY_ESC] || joueur_saisie==2){
+    while(!key[KEY_ESC] && joueur_saisie!=2){
         clear_to_color(buffer,makecol(100,0,220));
         textprintf_centre_ex(buffer,font,SCREEN_W/2,SCREEN_H/12,makecol(100,200,20),-1,"BIENVENUE DANS ECE WORLD");
         textprintf_centre_ex(buffer,font,SCREEN_W/2,SCREEN_H/2-50,makecol(100,200,20),-1,"Saisie le nom du %s joueur : ",joueur_numero[joueur_saisie]);
@@ -189,41 +194,21 @@ void setup_player(player* joueurs){
         
         
     }
-
+    
     for(int i =0;i<2;i++){
-        char* nom = malloc(sizeof(nom_joueur[i]));
+        char* nom = malloc(strlen(nom_joueur[i])+1);
         strcpy(nom,nom_joueur[i]);
         joueurs[i].name = nom;
         joueurs[i].tickets = 1;
     }
-    
+   
+
 
     
 }
 
 
-// FONCTION QUI AFFICHE L'ATH
-void affichage_ath(BITMAP** buffer, player* joueurs){
-    textout_ex(*buffer,font,(joueurs)->name,SCREEN_W-90,50,makecol(255,255,255),-1);
 
-
-    BITMAP *buffer_image = load_bitmap("ticket.bmp",NULL);
-    BITMAP *ticket = create_bitmap(15,10);
-
-    stretch_blit(buffer_image,ticket,0,0,buffer_image->w,buffer_image->h,0,0,ticket->w,ticket->h);
-
-    for(int i = 0;i<(joueurs)->tickets;i++){
-        masked_blit(ticket,*buffer,0,0,SCREEN_W-90+ticket->w*i,60,ticket->w,ticket->h);
-    }
-
-    textout_ex(*buffer,font,(joueurs+1)->name,SCREEN_W-90,90,makecol(255,255,255),-1);
-    for(int i = 0;i<(joueurs+1)->tickets;i++){
-        masked_blit(ticket,*buffer,0,0,SCREEN_W-90+ticket->w*i,100,ticket->w,ticket->h);
-    }
-
-    destroy_bitmap(ticket);
-
-}
 
 
 
