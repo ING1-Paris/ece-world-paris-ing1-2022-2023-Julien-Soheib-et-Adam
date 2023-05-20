@@ -44,7 +44,7 @@ typedef int bool;
 #define gauche 2
 #define sans_valeur 10
 
-#define snake_speed_base 0.2
+#define snake_speed_base 0.1
 #define snake_speed_mid 0.4
 #define snake_speed_high 0.2
 
@@ -76,7 +76,7 @@ int init_allegro(void);
 int in_game(void);
 void init_bitmap(BITMAP ** fond, BITMAP ***perso,BITMAP **fond_interdit);
 int checking_coordonates(int *x, int *y);
-void in_game_snake(void);
+void in_game_snake(player* joueur);
 void affichage_snake(BITMAP** buffer, node_snake* tete,BITMAP** sprites_serpent);
 void update_orienation_snake(node_snake *actuel);
 void update_coordonate_snake(node_snake *actuel, int *orientation);
@@ -85,13 +85,13 @@ void nouvelle_coordonees(pomme* actuel);
 int check_pomme(node_snake *tete, pomme* my_pomme);
 void affichage_ath(BITMAP** buffer, player* joueurs);
 void setup_player(player* joueurs);
-void playing_machine(void);
+void playing_machine(player* joueur, int player_actuelle);
 void tirage_au_sort(int *liste);
 void affichage_jackpot(BITMAP **icons, BITMAP* fond,int* winner);
 
-void ecran_acceuil_jackpot(BITMAP **icons,BITMAP ** buffer,int* position_chargement_gauche, int* position_chargement_droite,int *type_icon_droite,int * type_icon_gauche);
+void ecran_acceuil_jackpot(BITMAP **icons,BITMAP ** buffer,int* position_chargement_gauche, int* position_chargement_droite,int *type_icon_droite,int * type_icon_gauche,player *joueur,int player_playing);
 void affichage_jackpot(BITMAP **icons, BITMAP* fond,int* winner);
-void jeu_compteur(void);
+void jeu_compteur(player* joueur);
 
 
 

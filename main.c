@@ -5,14 +5,17 @@ int main(int argc, char* _argv[]) {
     
     if(init_allegro()!=0)
         return 1;
+
+    player* joueurs = malloc(sizeof(joueurs)*2);
+    setup_player(joueurs);
     if(argc == 1)
         in_game();
     else if(atoi(_argv[1])==0)
-        in_game_snake();
+        in_game_snake(joueurs);
     else if(atoi(_argv[1])==1)
-        playing_machine();
+        playing_machine(joueurs,0);
     else if(atoi(_argv[1])==2)
-        jeu_compteur();
+        jeu_compteur(joueurs);
     
     
     allegro_exit();
@@ -295,7 +298,7 @@ int checking_coordonates(int *x, int *y){
 
 
 
-void in_game_snake(void){
+void in_game_snake(player* joueur){
     // dans le jeu de snake
 
     BITMAP *fond_snake;
@@ -604,7 +607,7 @@ void affichage_snake(BITMAP** buffer, node_snake* tete,BITMAP** sprites_serpent)
 
 
 
-void playing_machine(void){
+void playing_machine(player* joueur, int player_actuelle){
     
     srand(time(NULL));
     
@@ -711,21 +714,28 @@ void playing_machine(void){
 
     while(!key[KEY_ESC]){
 
-        ecran_acceuil_jackpot(icons,&buffer,position_chargement_gauche,position_chargement_droite,type_icon_droite,type_icon_gauche);
+        ecran_acceuil_jackpot(icons,&buffer,position_chargement_gauche,position_chargement_droite,type_icon_droite,type_icon_gauche,joueur,player_actuelle);
        
 
         if(key[KEY_ENTER]){
             tirage_au_sort(liste_gagnant);
             affichage_jackpot(icons,fond,liste_gagnant);
             readkey();
+            if(liste_gagnant[0]==liste_gagnant[1] && liste_gagnant[0]==liste_gagnant[2]){
+                joueur[player_actuelle].tickets++;
+                clear_to_color(buffer,makecol(120,200,100));
+                textprintf_centre_ex(buffer,font,SCREEN_W/2,SCREEN_H/2,makecol(255,255,0),-1,"%s bravo !! Tu as gagné un ticket", joueur[player_actuelle].name);
+                blit(buffer,screen,0,0,0,0,SCREEN_W,SCREEN_H);
+            }
+            rest(5000);
+            readkey();
+            return;
         }
-        //rest(50);
+        
     }
 
     
-    if(liste_gagnant[0]==liste_gagnant[1] && liste_gagnant[0]==liste_gagnant[2]){
-        return;
-    }
+    
 
     for(int i =0;i<10;i++){
         destroy_bitmap(icons[i]);
@@ -758,7 +768,6 @@ void affichage_jackpot(BITMAP **icons, BITMAP* fond,int* winner){
         masked_blit(icons[9],buffer,0,0,SCREEN_W/2-icons[9]->w/2,SCREEN_H/2-icons[9]->h/2,icons[9]->w,icons[9]->h);
         blit(buffer,screen,0,0,0,0,SCREEN_W,SCREEN_H);
         rest(3000);
-        readkey();
         return;
     }
 }
@@ -770,10 +779,11 @@ void tirage_au_sort(int* liste){
     liste[2] = rand()%1;
 }
 
-void ecran_acceuil_jackpot(BITMAP **icons,BITMAP ** buffer,int* position_chargement_gauche, int* position_chargement_droite,int *type_icon_droite,int * type_icon_gauche){
+void ecran_acceuil_jackpot(BITMAP **icons,BITMAP ** buffer,int* position_chargement_gauche, int* position_chargement_droite,int *type_icon_droite,int * type_icon_gauche,player *joueur,int player_playing){
  
     clear_to_color(*buffer,makecol(120,180,100));
-    textprintf_centre_ex(*buffer,font,SCREEN_W/2,SCREEN_H/2,makecol(250,250,255),-1,"Appuyez sur la touche entrer afin de commencer a jouer");
+    textprintf_centre_ex(*buffer,font,SCREEN_W/2,SCREEN_H/2,makecol(250,250,255),-1,"Appuie sur la touche entrer afin de commencer à jouer");
+    textprintf_centre_ex(*buffer,font,SCREEN_W/2,SCREEN_H/2+50,makecol(250,250,255),-1,"%s c'est toi qui joue ",joueur[player_playing].name);
     
     for(int i = 0;i<5;i++){
         masked_blit(icons[type_icon_droite[i]],*buffer,0,0,680,position_chargement_droite[i],taille_icons,taille_icons);
@@ -795,13 +805,16 @@ void ecran_acceuil_jackpot(BITMAP **icons,BITMAP ** buffer,int* position_chargem
 }       
 
 
-void jeu_compteur(void){
+void jeu_compteur(player* joueur){
     clock_t debut,actuel;
     int click=0;
     int playing =0;
     BITMAP *buffer = create_bitmap(SCREEN_W,SCREEN_H);
     int unclick = 1;
-    while(!key[KEY_ESC]){
+    int tour_joueur = 0;
+    int scorePlayer[2] = {-1,-1};
+    
+    while(!key[KEY_ESC] ){
         if(playing==1){
 
             actuel = clock();
@@ -818,18 +831,43 @@ void jeu_compteur(void){
 
             if((double)(actuel-debut)/CLOCKS_PER_SEC>10){
                 clear_to_color(buffer,makecol(120,200,100));
-                textprintf_centre_ex(buffer,font,SCREEN_W/2,SCREEN_H/2,makecol(255,255,0),-1,"Votre score final est de %i, Bravo !",click);
+                textprintf_centre_ex(buffer,font,SCREEN_W/2,SCREEN_H/2,makecol(255,255,0),-1,"Votre score final est de %i, Bravo %s!",click, joueur[tour_joueur].name);
                 blit(buffer,screen,0,0,0,0,SCREEN_W,SCREEN_H);
-                printf("oui\n");
-                rest(3000);
+                rest(2000);
                 readkey();
+                scorePlayer[tour_joueur] = click;
+                click = 0;
                 playing = 0;
+                tour_joueur++;
             }
             
+        }
+        else if(tour_joueur==2){
+            if(scorePlayer[0]>scorePlayer[1]){
+                joueur[0].tickets++;
+                clear_to_color(buffer,makecol(120,200,100));
+                textprintf_centre_ex(buffer,font,SCREEN_W/2,SCREEN_H/2,makecol(255,255,0),-1,"%s à gagné, bravo tu recois un ticket suplémentaire !", joueur[0].name);
+                blit(buffer,screen,0,0,0,0,SCREEN_W,SCREEN_H);
+            }
+            else if(scorePlayer[1]>scorePlayer[0]){
+                joueur[1].tickets++;
+                clear_to_color(buffer,makecol(120,200,100));
+                textprintf_centre_ex(buffer,font,SCREEN_W/2,SCREEN_H/2,makecol(255,255,0),-1,"%s à gagné, bravo tu recois un ticket suplémentaire !", joueur[1].name);
+                blit(buffer,screen,0,0,0,0,SCREEN_W,SCREEN_H);
+            }
+            else{
+                clear_to_color(buffer,makecol(120,200,100));
+                textprintf_centre_ex(buffer,font,SCREEN_W/2,SCREEN_H/2,makecol(255,255,0),-1,"Il y à égalité bravo a vous deux", joueur[0].name);
+                blit(buffer,screen,0,0,0,0,SCREEN_W,SCREEN_H);
+            }
+            rest(8000);
+
+            return;
         }
         else{
             clear_to_color(buffer,makecol(120,200,100));
             textprintf_centre_ex(buffer,font,SCREEN_W/2,SCREEN_H/2,makecol(255,255,0),-1,"Appuyer sur la touche entrer pour commencer a joueur");
+            textprintf_centre_ex(buffer,font,SCREEN_W/2,SCREEN_H/2+50,makecol(255,255,0),-1,"%s c'est ton tour",joueur[tour_joueur].name);
             blit(buffer,screen,0,0,0,0,SCREEN_W,SCREEN_H);
             if(key[KEY_ENTER]){
                 playing = 1;
