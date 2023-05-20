@@ -135,7 +135,7 @@ int in_game(void){
         blit(buffer,screen,0,0,0,0,buffer->w,buffer->h);
         if(checking_coordonates(&x,&y)==0){
             //playing = false;
-            //in_game_snake();
+            snake_game(joueurs);
         }
         
         
@@ -309,7 +309,7 @@ int checking_coordonates(int *x, int *y){
 
     // ici test pour l'instant
 
-    if(*x>=140 && *x<=180 && *y<= 1185 && *y>=1150){
+    if(*x>=0 && *x<=180 && *y<= 1185 && *y>=1150){
         //in_game_snake();
         //allegro_message("ZONE DE JEUX");
         *x = 0;
@@ -335,9 +335,10 @@ void snake_game(player* joueur){
                 textprintf_centre_ex(buffer,font,SCREEN_W/2,SCREEN_H/2,makecol(86, 232, 47),-1,"%s à gagné bravo !",joueur[winner].name);
                 textprintf_centre_ex(buffer,font,SCREEN_W/2,SCREEN_H/2+50,makecol(86, 232, 47),-1,"%s tu gagnes 2 tickets !",joueur[winner].name);
                 blit(buffer,screen,0,0,0,0,SCREEN_W,SCREEN_H);
-                joueur[winner].tickets++;
+                joueur[winner].tickets+=2;
                 rest(5000);
                 readkey();
+                return;
             }
         }
         clear_to_color(buffer,makecol(60,200,120));
