@@ -94,6 +94,25 @@ void affichage_jackpot(BITMAP **icons, BITMAP* fond,int* winner);
 
 
 
+
+typedef struct
+{
+    int nbdepoint;
+}t_joueur;
+
+
+typedef struct {
+    int x_champignon;
+    int y_champignon;
+    BITMAP *champignon;
+    int clique;
+} t_champignon;
+int animation_champignon(t_champignon *champignon, BITMAP *buffer,int score);
+int jeu_soheib();
+
+
+
+
 int is_integer(double number) {
     return floor(number) == number && ceil(number) == number;
 }
