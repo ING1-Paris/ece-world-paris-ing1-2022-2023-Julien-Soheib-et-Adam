@@ -11,6 +11,8 @@ int main(int argc, char* _argv[]) {
         in_game_snake();
     else if(atoi(_argv[1])==1)
         playing_machine();
+    else if(atoi(_argv[1])==2)
+        jeu_compteur();
     
     
     allegro_exit();
@@ -802,11 +804,7 @@ void jeu_compteur(void){
     while(!key[KEY_ESC]){
         if(playing==1){
 
-
-            
             actuel = clock();
-            
-
             clear_to_color(buffer,makecol(120,200,100));
             textprintf_centre_ex(buffer,font,SCREEN_W/2,SCREEN_H/2,makecol(255,255,0),-1,"Votre score actuel est de %i",click);
             textprintf_centre_ex(buffer,font,SCREEN_W-100,30,makecol(255,255,0),-1,"Temps : %.2f seconde restante",(double) 10-((double)(actuel-debut)/CLOCKS_PER_SEC));
@@ -837,7 +835,7 @@ void jeu_compteur(void){
                 playing = 1;
                 debut = clock();
             }
-        }
-    }
+        }
+    }
 }
 

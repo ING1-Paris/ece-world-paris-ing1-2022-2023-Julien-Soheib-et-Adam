@@ -91,7 +91,7 @@ void affichage_jackpot(BITMAP **icons, BITMAP* fond,int* winner);
 
 void ecran_acceuil_jackpot(BITMAP **icons,BITMAP ** buffer,int* position_chargement_gauche, int* position_chargement_droite,int *type_icon_droite,int * type_icon_gauche);
 void affichage_jackpot(BITMAP **icons, BITMAP* fond,int* winner);
-
+void jeu_compteur(void);
 
 
 
