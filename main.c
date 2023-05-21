@@ -986,8 +986,6 @@ void jeu_compteur(player* joueur){
 
 
 
-#include<allegro.h>
-#include <time.h>
 #define SCREEN_WIDTH 800
 #define SCREEN_HEIGHT 600
 
@@ -1015,7 +1013,7 @@ void draw_random_taupe(BITMAP *buffer, BITMAP *taupe) {
     stretch_sprite(buffer, taupe, taupe_positions[rand_index][0], taupe_positions[rand_index][1], 100, 110); // changé ici
 }
 
-int main() {
+int jeu_soheib() {
     allegro_init();
     install_timer();
     srand(time(NULL));
@@ -1089,7 +1087,7 @@ int main() {
 
     return 0;
 }
-END_OF_MAIN();
+
    
 
 
