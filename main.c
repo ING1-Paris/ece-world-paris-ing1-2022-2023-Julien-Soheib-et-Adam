@@ -135,7 +135,17 @@ int in_game(void){
         blit(buffer,screen,0,0,0,0,buffer->w,buffer->h);
         if(checking_coordonates(&x,&y)==0){
             //playing = false;
+            for(int i = 0;i<4;i++){
+                for(int j =0;j<4;j++){
+                    destroy_bitmap(perso[i][j]);
+                }
+            }
+            destroy_bitmap(fond_interdit);
+            destroy_bitmap(fond);
+
             snake_game(joueurs);
+            rest(1000);
+            init_bitmap(&fond,perso,&fond_interdit);
         }
         
         
