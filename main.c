@@ -68,8 +68,21 @@ int in_game(void){
     perso = (BITMAP***) malloc(sizeof(BITMAP**)*4);
     if(perso==NULL)
         return 1;
+    
 
     init_bitmap(&fond,perso,&fond_interdit);
+
+    buffer = create_bitmap(SCREEN_W,SCREEN_H);
+    if(buffer==NULL)
+        return 1;
+
+    int player_actuelle = 0;
+    
+    clear_to_color(buffer,makecol(100,100,100));
+    textprintf_centre_ex(buffer,font,SCREEN_W/2,SCREEN_H/2,makecol(0,0,0),-1,"%s c'est toi qui commence on y va ?",joueurs[player_actuelle].name);
+    blit(buffer,screen,0,0,0,0,SCREEN_W,SCREEN_H);
+    readkey();
+    
 
     int x = fond->w/2;
     int y = fond->h/2;
@@ -77,11 +90,6 @@ int in_game(void){
     int last_x = x;
     int last_y = y;
 
-    buffer = create_bitmap(SCREEN_W,SCREEN_H);
-    if(buffer==NULL)
-        return 1;
-
-    
     
 
     while(playing){
@@ -128,13 +136,17 @@ int in_game(void){
         last_y = y;
         
         for(int i = 0; i<2;i++){
-            textprintf_centre_ex(buffer,font,SCREEN_W-120,50+(10*i),makecol(255,255,255),-1,"%s",joueurs[i].name);
-            textprintf_centre_ex(buffer,font,SCREEN_W-60,50+(10*i),makecol(255,255,255),-1,"%i tickets",joueurs[i].tickets);
+            textprintf_centre_ex(buffer,font,SCREEN_W-180,50+(10*i),makecol(0,0,0),-1,"%s",joueurs[i].name);
+            textprintf_centre_ex(buffer,font,SCREEN_W-60,50+(10*i),makecol(0,0,0),-1,"%i tickets",joueurs[i].tickets);
         }
         
         blit(buffer,screen,0,0,0,0,buffer->w,buffer->h);
-        if(checking_coordonates(&x,&y)==0){
-            //playing = false;
+        if(key[KEY_ENTER]){
+            printf("x : %i  ;  y : %i \n",x,y);
+        }
+        if(checking_coordonates(&x,&y,joueurs,player_actuelle)==0){
+            joueurs[1].tickets--;
+            joueurs[0].tickets--;
             for(int i = 0;i<4;i++){
                 for(int j =0;j<4;j++){
                     destroy_bitmap(perso[i][j]);
@@ -142,10 +154,18 @@ int in_game(void){
             }
             destroy_bitmap(fond_interdit);
             destroy_bitmap(fond);
-
-            snake_game(joueurs);
             rest(1000);
+            player_actuelle = (player_actuelle+1)%2;
+            clear_to_color(buffer,makecol(100,100,100));
+            textprintf_centre_ex(buffer,font,SCREEN_W/2,SCREEN_H/2,makecol(0,0,0),-1,"%s c'est ton tour !",joueurs[player_actuelle].name);
+            blit(buffer,screen,0,0,0,0,SCREEN_W,SCREEN_H);
             init_bitmap(&fond,perso,&fond_interdit);
+            if(joueurs[0].tickets==0){
+                printf("perdu");
+            }
+            if(joueurs[1].tickets==0){
+                printf("perdu");
+            }
         }
         
         
@@ -209,7 +229,7 @@ void setup_player(player* joueurs){
         char* nom = malloc(strlen(nom_joueur[i])+1);
         strcpy(nom,nom_joueur[i]);
         joueurs[i].name = nom;
-        joueurs[i].tickets = 1;
+        joueurs[i].tickets = 5;
     }
    
 
@@ -315,13 +335,30 @@ void init_bitmap(BITMAP ** fond, BITMAP ***perso,BITMAP **fond_interdit){
 
 
 // check si on arrive dans une zone de mini jeu
-int checking_coordonates(int *x, int *y){
+int checking_coordonates(int *x, int *y, player * joueur, int player_actuelle){
 
     // ici test pour l'instant
 
-    if(*x>=0 && *x<=180 && *y<= 1185 && *y>=1150){
-        //in_game_snake();
-        //allegro_message("ZONE DE JEUX");
+    if(*x>=30 && *x<=100 && *y<= 1500 && *y>=1420){
+        snake_game(joueur);
+        *x = 0;
+        *y = 0;
+        return 0;
+    }
+    else if(*x>=375 && *x<=420 && *y<= 1980 && *y>=2005){
+        jeu_compteur(joueur);
+        *x = 0;
+        *y = 0;
+        return 0;
+    }
+    else if(*x>=1600 && *x<=1700 && *y<= 1380 && *y>=1350){
+        playing_machine(joueur,player_actuelle);
+        *x = 0;
+        *y = 0;
+        return 0;
+    }
+    else if(*x>=930 && *x<=1010 && *y<= 425 && *y>=400){
+        //jeu_soheib(joueur);
         *x = 0;
         *y = 0;
         return 0;
@@ -345,7 +382,7 @@ void snake_game(player* joueur){
                 textprintf_centre_ex(buffer,font,SCREEN_W/2,SCREEN_H/2,makecol(86, 232, 47),-1,"%s à gagné bravo !",joueur[winner].name);
                 textprintf_centre_ex(buffer,font,SCREEN_W/2,SCREEN_H/2+50,makecol(86, 232, 47),-1,"%s tu gagnes 2 tickets !",joueur[winner].name);
                 blit(buffer,screen,0,0,0,0,SCREEN_W,SCREEN_H);
-                joueur[winner].tickets+=2;
+                joueur[winner].tickets+=3;
                 rest(5000);
                 readkey();
                 return;
@@ -789,7 +826,7 @@ void playing_machine(player* joueur, int player_actuelle){
             affichage_jackpot(icons,fond,liste_gagnant);
             readkey();
             if(liste_gagnant[0]==liste_gagnant[1] && liste_gagnant[0]==liste_gagnant[2]){
-                joueur[player_actuelle].tickets++;
+                joueur[player_actuelle].tickets+=2;
                 clear_to_color(buffer,makecol(120,200,100));
                 textprintf_centre_ex(buffer,font,SCREEN_W/2,SCREEN_H/2,makecol(255,255,0),-1,"%s bravo !! Tu as gagné un ticket", joueur[player_actuelle].name);
                 blit(buffer,screen,0,0,0,0,SCREEN_W,SCREEN_H);
@@ -911,13 +948,13 @@ void jeu_compteur(player* joueur){
         }
         else if(tour_joueur==2){
             if(scorePlayer[0]>scorePlayer[1]){
-                joueur[0].tickets++;
+                joueur[0].tickets+=2;
                 clear_to_color(buffer,makecol(120,200,100));
                 textprintf_centre_ex(buffer,font,SCREEN_W/2,SCREEN_H/2,makecol(255,255,0),-1,"%s à gagné, bravo tu recois un ticket suplémentaire !", joueur[0].name);
                 blit(buffer,screen,0,0,0,0,SCREEN_W,SCREEN_H);
             }
             else if(scorePlayer[1]>scorePlayer[0]){
-                joueur[1].tickets++;
+                joueur[1].tickets+=2;
                 clear_to_color(buffer,makecol(120,200,100));
                 textprintf_centre_ex(buffer,font,SCREEN_W/2,SCREEN_H/2,makecol(255,255,0),-1,"%s à gagné, bravo tu recois un ticket suplémentaire !", joueur[1].name);
                 blit(buffer,screen,0,0,0,0,SCREEN_W,SCREEN_H);

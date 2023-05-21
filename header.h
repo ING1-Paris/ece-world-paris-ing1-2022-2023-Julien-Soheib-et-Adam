@@ -75,7 +75,7 @@ typedef struct player
 int init_allegro(void);
 int in_game(void);
 void init_bitmap(BITMAP ** fond, BITMAP ***perso,BITMAP **fond_interdit);
-int checking_coordonates(int *x, int *y);
+int checking_coordonates(int *x, int *y, player * joueur, int player_actuelle);
 void in_game_snake(int* score_finale , double * temps_finale);
 void snake_game(player* joueur);
 void saisir_nom(player* joueur);
