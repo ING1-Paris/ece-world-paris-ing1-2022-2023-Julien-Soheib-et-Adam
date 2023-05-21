@@ -154,12 +154,16 @@ int in_game(void){
             }
             destroy_bitmap(fond_interdit);
             destroy_bitmap(fond);
+            
+            init_bitmap(&fond,perso,&fond_interdit);
             rest(1000);
+            
             player_actuelle = (player_actuelle+1)%2;
+            /*
             clear_to_color(buffer,makecol(100,100,100));
             textprintf_centre_ex(buffer,font,SCREEN_W/2,SCREEN_H/2,makecol(0,0,0),-1,"%s c'est ton tour !",joueurs[player_actuelle].name);
             blit(buffer,screen,0,0,0,0,SCREEN_W,SCREEN_H);
-            init_bitmap(&fond,perso,&fond_interdit);
+            */
             if(joueurs[0].tickets==0){
                 printf("perdu");
             }
