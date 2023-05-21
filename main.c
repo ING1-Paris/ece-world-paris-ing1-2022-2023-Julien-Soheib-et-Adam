@@ -981,3 +981,116 @@ void jeu_compteur(player* joueur){
     }
 }
 
+
+
+
+
+
+#include<allegro.h>
+#include <time.h>
+#define SCREEN_WIDTH 800
+#define SCREEN_HEIGHT 600
+
+#define TROU_WIDTH 180
+#define TROU_HEIGHT 120
+#define SPACING (SCREEN_WIDTH / 4)
+
+#define OFFSET (SCREEN_WIDTH / 8)
+
+void draw_trous(BITMAP *buffer, BITMAP *trou) {
+    int descente = SCREEN_HEIGHT / 8;
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++) {
+            blit(trou, buffer, 0, 0, j * SPACING + OFFSET, i * SPACING + descente, TROU_WIDTH, TROU_HEIGHT);
+        }
+    }
+}
+
+int taupe_positions[9][2] = {{150, 25}, {350, 25}, {550, 25},
+                             {150, 225}, {350, 225}, {550, 225},
+                             {150, 425}, {350, 425}, {550, 425}};
+
+void draw_random_taupe(BITMAP *buffer, BITMAP *taupe) {
+    int rand_index = rand() % 9;
+    stretch_sprite(buffer, taupe, taupe_positions[rand_index][0], taupe_positions[rand_index][1], 100, 110); // changé ici
+}
+
+int main() {
+    allegro_init();
+    install_timer();
+    srand(time(NULL));
+
+
+    set_color_depth(desktop_color_depth());
+    if (set_gfx_mode(GFX_AUTODETECT_WINDOWED, SCREEN_WIDTH, SCREEN_HEIGHT, 0, 0) != 0) {
+        allegro_message("Erreur lors du changement de mode graphique");
+        allegro_exit();
+        exit(EXIT_FAILURE);
+    }
+    install_mouse();
+    show_mouse(screen);
+    BITMAP *buffer = create_bitmap(SCREEN_WIDTH, SCREEN_HEIGHT);
+    clear_to_color(buffer, makecol(255, 255, 255));
+
+    BITMAP *background_image = load_bitmap("image.bmp", NULL);
+    if (background_image == NULL) {
+        allegro_message("Erreur lors du chargement de l'image de fond");
+        destroy_bitmap(buffer);
+        allegro_exit();
+        exit(EXIT_FAILURE);
+    }
+
+    BITMAP *trou_image = load_bitmap("TrouImg.bmp", NULL);
+    if (trou_image == NULL) {
+        allegro_message("Erreur lors du chargement de l'image des trous");
+        destroy_bitmap(buffer);
+        destroy_bitmap(background_image);
+        allegro_exit();
+        exit(EXIT_FAILURE);
+    }
+
+    BITMAP *taupe_image = load_bitmap("TaupeImg.bmp", NULL);
+    if (taupe_image == NULL) {
+        allegro_message("Erreur lors du chargement de l'image de la taupe");
+        destroy_bitmap(trou_image);
+        destroy_bitmap(background_image);
+        destroy_bitmap(buffer);
+        allegro_exit();
+        exit(EXIT_FAILURE);
+    }
+
+    draw_trous(buffer, trou_image);
+
+    int not_clicked=1;
+    int score=0;
+    while(!key[KEY_ESC]){
+        blit(background_image, buffer, 0, 0, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+        draw_trous(buffer, trou_image);
+        draw_random_taupe(buffer, taupe_image);
+        if(mouse_b & 1 && not_clicked==1)
+        {
+            score++;
+            not_clicked=0;
+        }
+        if(!(mouse_b & 1)&& not_clicked==0)
+        {
+            not_clicked=1;
+        }
+        textprintf_centre_ex(buffer,font,SCREEN_W-200,SCREEN_H-50, makecol(255,255,255),-1,"Score %i",score);
+        blit(buffer, screen, 0, 0, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+        rest(1500);
+    }
+
+    destroy_bitmap(trou_image);
+    destroy_bitmap(taupe_image);
+    destroy_bitmap(background_image);
+    destroy_bitmap(buffer);
+    allegro_exit();
+
+    return 0;
+}
+END_OF_MAIN();
+   
+
+
+
